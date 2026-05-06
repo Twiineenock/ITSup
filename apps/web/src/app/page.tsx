@@ -116,7 +116,8 @@ export default function Home() {
               { title: 'Cybersecurity Audit', icon: '🛡️', desc: 'Comprehensive vulnerability assessment and implementation of threat protection.' },
               { title: 'Data Recovery', icon: '💾', desc: 'Emergency data retrieval from damaged drives and corrupted partitions.' },
               { title: 'Cloud Migration', icon: '☁️', desc: 'Smooth transition of legacy workflows to modern Azure, AWS, or GCP environments.' },
-              { title: 'Remote Support', icon: '🎧', desc: 'Instant troubleshooting via high-security encrypted screen sharing.' }
+              { title: 'Remote Support', icon: '🎧', desc: 'Instant troubleshooting via high-security encrypted screen sharing.' },
+              { title: 'Expert Consultation', icon: '👨‍💼', desc: 'Professional advice on digital transformation, IT strategy, and infrastructure scaling.' }
             ].map((service, i) => (
               <div key={i} className="glass-card" style={{ padding: '3rem', transition: 'transform 0.3s' }}>
                 <div style={{ fontSize: '3rem', marginBottom: '2rem' }}>{service.icon}</div>
