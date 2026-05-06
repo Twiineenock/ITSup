@@ -63,9 +63,19 @@ export default function Navbar() {
             <UserWidget user={user} profile={profile} />
           ) : (
             <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
-              <Link href="/login" style={{ color: 'var(--text)', fontSize: '0.9rem', fontWeight: 500 }}>Sign In</Link>
-              <Link href="/signup" className="btn-primary" style={{ padding: '0.6rem 1.5rem', fontSize: '0.9rem' }}>
-                Join ITSup
+              <Link href="/login" style={{ color: 'var(--text-muted)', fontSize: '0.9rem', fontWeight: 500, marginRight: '0.5rem' }}>Login</Link>
+              <Link href="/signup" className="btn-primary" style={{ padding: '0.6rem 1.25rem', fontSize: '0.85rem' }}>
+                Create a Ticket
+              </Link>
+              <Link href="/signup" style={{ 
+                padding: '0.6rem 1.25rem', 
+                fontSize: '0.85rem', 
+                borderRadius: '0.5rem', 
+                border: '1px solid var(--primary)', 
+                color: 'var(--primary)',
+                fontWeight: 600
+              }}>
+                Earn Money
               </Link>
             </div>
           )}
