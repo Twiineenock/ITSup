@@ -48,7 +48,7 @@ export default function Footer() {
           </div>
         </div>
         
-        <div style={{ pt: '2rem', borderTop: '1px solid var(--border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.85rem' }}>
+        <div style={{ paddingTop: '2rem', borderTop: '1px solid var(--border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.85rem' }}>
           <p>© 2024 ITSup. All rights reserved.</p>
           <div style={{ display: 'flex', gap: '1.5rem' }}>
             <span>Twitter</span>

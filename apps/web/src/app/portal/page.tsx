@@ -152,7 +152,7 @@ export default function UserPortal() {
                         </div>
                       ))}
                       {(!ticket.offers || ticket.offers.length === 0) && (
-                        <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', textAlign: 'center', py: '1rem' }}>Waiting for offers...</p>
+                        <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', textAlign: 'center', paddingTop: '1rem', paddingBottom: '1rem' }}>Waiting for offers...</p>
                       )}
                     </div>
                   </div>

@@ -26,24 +26,24 @@ export default function UserWidget({ user, profile }: UserWidgetProps) {
 
   return (
     <div style={{ position: 'relative' }}>
-      <div 
+      <div
         onClick={() => setIsOpen(!isOpen)}
-        style={{ 
-          display: 'flex', 
-          alignItems: 'center', 
-          gap: '0.75rem', 
-          padding: '0.5rem', 
-          borderRadius: '2rem', 
-          background: 'rgba(255,255,255,0.05)', 
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: '0.75rem',
+          padding: '0.5rem',
+          borderRadius: '2rem',
+          background: 'rgba(255,255,255,0.05)',
           border: '1px solid var(--border)',
           cursor: 'pointer',
           transition: 'all 0.2s'
         }}
       >
-        <div style={{ 
-          width: '32px', 
-          height: '32px', 
-          borderRadius: '50%', 
+        <div style={{
+          width: '32px',
+          height: '32px',
+          borderRadius: '50%',
           overflow: 'hidden',
           background: 'var(--surface)',
           border: '1px solid var(--border)'
@@ -62,37 +62,37 @@ export default function UserWidget({ user, profile }: UserWidgetProps) {
           </p>
         </div>
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: '0.25rem', color: 'var(--text-muted)' }}>
-          <path d="m6 9 6 6 6-6"/>
+          <path d="m6 9 6 6 6-6" />
         </svg>
       </div>
 
       {isOpen && (
         <>
-          <div 
+          <div
             onClick={() => setIsOpen(false)}
-            style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 100 }} 
+            style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 100 }}
           />
-          <div style={{ 
-            position: 'absolute', 
-            top: 'calc(100% + 0.75rem)', 
-            right: 0, 
-            width: '200px', 
-            background: '#0f172a', 
-            border: '1px solid var(--border)', 
-            borderRadius: '0.75rem', 
+          <div style={{
+            position: 'absolute',
+            top: 'calc(100% + 0.75rem)',
+            right: 0,
+            width: '200px',
+            background: '#0f172a',
+            border: '1px solid var(--border)',
+            borderRadius: '0.75rem',
             boxShadow: '0 10px 25px -5px rgba(0,0,0,0.5)',
             zIndex: 101,
             overflow: 'hidden',
             padding: '0.5rem'
           }}>
-            <Link 
-              href={getPortalLink()} 
+            <Link
+              href={getPortalLink()}
               onClick={() => setIsOpen(false)}
-              style={{ 
-                display: 'flex', 
-                alignItems: 'center', 
-                gap: '0.75rem', 
-                padding: '0.75rem 1rem', 
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.75rem',
+                padding: '0.75rem 1rem',
                 borderRadius: '0.5rem',
                 color: 'var(--text)',
                 fontSize: '0.9rem',
@@ -102,14 +102,14 @@ export default function UserWidget({ user, profile }: UserWidgetProps) {
             >
               Dashboard
             </Link>
-            <button 
+            <button
               onClick={handleLogout}
-              style={{ 
+              style={{
                 width: '100%',
-                display: 'flex', 
-                alignItems: 'center', 
-                gap: '0.75rem', 
-                padding: '0.75rem 1rem', 
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.75rem',
+                padding: '0.75rem 1rem',
                 borderRadius: '0.5rem',
                 color: 'var(--danger)',
                 fontSize: '0.9rem',
