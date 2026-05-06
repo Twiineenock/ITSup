@@ -1,0 +1,9 @@
+{
+  "name": "@itsup/database",
+  "version": "1.0.0",
+  "type": "module",
+  "main": "index.ts",
+  "dependencies": {
+    "@supabase/supabase-js": "^2.39.7"
+  }
+}
