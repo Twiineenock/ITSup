@@ -32,27 +32,74 @@ export default function TicketForm({ onSuccess }: TicketFormProps) {
       category: formData.get('category'),
       budget: Number(formData.get('budget')),
       user_id: user.id,
+      status: 'PENDING_PAYMENT'
     };
 
-    const { error: insertError } = await supabase.from('tickets').insert([ticketData]);
+    // 1. Create the ticket in PENDING_PAYMENT state
+    const { data, error: insertError } = await supabase
+      .from('tickets')
+      .insert([ticketData])
+      .select()
+      .single();
 
-    setLoading(false);
-    if (!insertError) {
-      setSuccess(true);
-      (e.target as HTMLFormElement).reset();
-      if (onSuccess) setTimeout(onSuccess, 1500);
-    } else {
+    if (insertError) {
       setError(insertError.message);
+      setLoading(false);
+      return;
     }
+
+    // 2. Trigger Flutterwave for 5000 UGX Listing Fee
+    window.FlutterwaveCheckout({
+      public_key: process.env.NEXT_PUBLIC_FLW_PUBLIC_KEY || "FLWPUBK_TEST-5e4d2b270a683935821c97a5a8286a10-X",
+      tx_ref: `TICKET-LISTING-${data.id}-${Date.now()}`,
+      amount: 5000,
+      currency: "UGX",
+      payment_options: "mobilemoneyuganda, card",
+      customer: {
+        email: user.email || "",
+        name: user.user_metadata?.full_name || "Customer",
+      },
+      customizations: {
+        title: "ITSup Listing Fee",
+        description: "Pay 5000 UGX to publish your support ticket.",
+        logo: "https://itsup.app/logo.png",
+      },
+      callback: async (paymentData: any) => {
+        if (paymentData.status === "successful") {
+          // 3. Update status to OPEN on success
+          const { error: updateError } = await supabase
+            .from('tickets')
+            .update({ status: 'OPEN' })
+            .eq('id', data.id);
+
+          if (!updateError) {
+            setSuccess(true);
+            (e.target as HTMLFormElement).reset();
+            if (onSuccess) setTimeout(onSuccess, 1500);
+          } else {
+            setError("Payment successful, but failed to activate ticket. Please contact support.");
+          }
+        } else {
+          setError("Payment was not successful. Please try again.");
+        }
+        setLoading(false);
+      },
+      onclose: () => {
+        setLoading(false);
+      }
+    });
   }
 
   return (
     <div className="glass-card animate-fade-in" style={{ maxWidth: '600px', margin: '2rem auto' }}>
       <h2 style={{ marginBottom: '1.5rem', fontSize: '1.5rem', fontWeight: 700 }}>Create New Support Ticket</h2>
+      <p style={{ color: 'var(--text-muted)', marginBottom: '1.5rem', fontSize: '0.9rem' }}>
+        📢 <strong>Notice:</strong> A listing fee of <strong>5,000 UGX</strong> applies to all new tickets. This ensures only serious requests reach our expert IT Officers.
+      </p>
       
       {success && (
         <div className="animate-slide-up" style={{ background: 'rgba(16, 185, 129, 0.1)', color: 'var(--success)', padding: '1rem', borderRadius: '0.5rem', marginBottom: '1.5rem', border: '1px solid var(--success)', fontSize: '0.9rem' }}>
-          ✨ Ticket created successfully! Refreshing...
+          ✨ Ticket published successfully! Redirecting...
         </div>
       )}
 
@@ -79,7 +126,7 @@ export default function TicketForm({ onSuccess }: TicketFormProps) {
             </select>
           </div>
           <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-            <label style={{ color: 'var(--text-muted)', fontSize: '0.9rem' }}>Budget (UGX)</label>
+            <label style={{ color: 'var(--text-muted)', fontSize: '0.9rem' }}>Est. Budget (UGX)</label>
             <input name="budget" type="number" required placeholder="200,000" style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid var(--border)', padding: '0.75rem', borderRadius: '0.5rem', color: 'white' }} />
           </div>
         </div>
@@ -90,7 +137,7 @@ export default function TicketForm({ onSuccess }: TicketFormProps) {
         </div>
 
         <button type="submit" disabled={loading} className="btn-primary" style={{ marginTop: '1rem' }}>
-          {loading ? 'Creating...' : 'Submit Ticket'}
+          {loading ? 'Processing...' : 'Pay 5,000 UGX & Publish Ticket'}
         </button>
       </form>
     </div>

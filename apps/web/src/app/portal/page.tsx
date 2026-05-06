@@ -29,49 +29,6 @@ export default function UserPortal() {
     fetchTickets();
   }, []);
 
-  async function acceptOffer(ticketId: string, officerId: string, finalPrice: number) {
-    const { error } = await supabase
-      .from('tickets')
-      .update({ 
-        officer_id: officerId, 
-        budget: finalPrice,
-        status: 'FUNDED' 
-      })
-      .eq('id', ticketId);
-    
-    if (!error) {
-      // Delete other offers for this ticket
-      await supabase.from('ticket_offers').delete().eq('ticket_id', ticketId);
-      fetchTickets();
-    }
-  }
-
-  async function approveAndRelease(ticketId: string, officerId: string, amount: number) {
-    // 1. Mark ticket as COMPLETED
-    const { error: ticketError } = await supabase
-      .from('tickets')
-      .update({ status: 'COMPLETED' })
-      .eq('id', ticketId);
-
-    if (ticketError) return alert(ticketError.message);
-
-    // 2. Record the Payout Settlement (The "Proof of Payment")
-    const { error: payoutError } = await supabase
-      .from('payouts')
-      .insert([{
-        ticket_id: ticketId,
-        officer_id: officerId,
-        amount: amount
-      }]);
-
-    if (payoutError) console.error("Payout recording error:", payoutError.message);
-
-    fetchTickets();
-    
-    // Show a premium success message
-    alert("💸 Payment Released Successfully! The funds have been moved to the Officer's account.");
-  }
-
   return (
     <main style={{ minHeight: '100vh', background: 'var(--bg)', color: 'var(--text)', display: 'flex', flexDirection: 'column' }}>
       <Navbar />
@@ -79,7 +36,7 @@ export default function UserPortal() {
         <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '3rem' }}>
           <div>
             <h1 style={{ fontSize: '2.5rem', fontWeight: 800 }}>My Support Dashboard</h1>
-            <p style={{ color: 'var(--text-muted)', fontSize: '1.1rem' }}>Securely manage your technical requests and payments.</p>
+            <p style={{ color: 'var(--text-muted)', fontSize: '1.1rem' }}>Manage your technical requests and connect with expert officers.</p>
           </div>
           <button 
             onClick={() => setShowForm(true)} 
@@ -112,13 +69,13 @@ export default function UserPortal() {
         ) : (
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '2rem' }}>
             {tickets.map(ticket => (
-              <div key={ticket.id} className="glass-card">
+              <div key={ticket.id} className="glass-card" style={{ border: ticket.status === 'PENDING_PAYMENT' ? '1px dashed var(--warning)' : '1px solid var(--border)' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '1rem' }}>
-                  <span className={`badge badge-${ticket.status.toLowerCase()}`}>{ticket.status}</span>
+                  <span className={`badge badge-${ticket.status.toLowerCase()}`}>{ticket.status.replace('_', ' ')}</span>
                   <span style={{ fontWeight: 800 }}>{Number(ticket.budget).toLocaleString()} UGX</span>
                 </div>
                 <h3 style={{ fontSize: '1.25rem', marginBottom: '0.5rem' }}>{ticket.title}</h3>
-                <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', marginBottom: '1.5rem' }}>{ticket.description}</p>
+                <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', marginBottom: '1.5rem', height: '3rem', overflow: 'hidden' }}>{ticket.description}</p>
                 
                 {ticket.status === 'OPEN' && (
                   <div style={{ marginTop: '1rem' }}>
@@ -127,7 +84,7 @@ export default function UserPortal() {
                     </p>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
                       {ticket.offers?.map((offer: any) => (
-                        <div key={offer.id} style={{ background: 'rgba(255,255,255,0.03)', padding: '0.75rem', borderRadius: '0.5rem', display: 'flex', flexDirection: 'column', gap: '1rem', border: '1px solid rgba(255,255,255,0.05)' }}>
+                        <div key={offer.id} style={{ background: 'rgba(255,255,255,0.03)', padding: '0.75rem', borderRadius: '0.5rem', border: '1px solid rgba(255,255,255,0.05)' }}>
                           <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
                             <img 
                               src={offer.officer?.avatar_url || 'https://ui-avatars.com/api/?name=' + offer.officer?.full_name} 
@@ -136,30 +93,40 @@ export default function UserPortal() {
                             />
                             <div style={{ flex: 1 }}>
                               <p style={{ fontSize: '0.9rem', fontWeight: 600 }}>{offer.officer?.full_name}</p>
-                              <a href={`https://wa.me/${offer.officer?.phone_number}`} target="_blank" rel="noopener noreferrer" style={{ fontSize: '0.75rem', color: 'var(--primary)' }}>
-                                Chat with Officer
+                              <a 
+                                href={`https://wa.me/${offer.officer?.phone_number}?text=Hi, I am interested in your offer for my ticket: ${ticket.title}`} 
+                                target="_blank" 
+                                rel="noopener noreferrer" 
+                                style={{ 
+                                  display: 'inline-flex', 
+                                  alignItems: 'center', 
+                                  gap: '0.4rem',
+                                  padding: '0.4rem 0.8rem',
+                                  background: '#25D366',
+                                  color: 'white',
+                                  borderRadius: '0.4rem',
+                                  fontSize: '0.75rem',
+                                  fontWeight: 700,
+                                  marginTop: '0.5rem',
+                                  textDecoration: 'none'
+                                }}
+                              >
+                                Chat on WhatsApp
                               </a>
                             </div>
                             <p style={{ fontSize: '0.9rem', color: 'var(--primary)', fontWeight: 700 }}>{Number(offer.proposed_price).toLocaleString()} UGX</p>
                           </div>
-                          <button 
-                            onClick={() => acceptOffer(ticket.id, offer.officer_id, offer.proposed_price)}
-                            className="btn-primary" 
-                            style={{ width: '100%', padding: '0.5rem', fontSize: '0.8rem' }}
-                          >
-                            Accept & Fund
-                          </button>
                         </div>
                       ))}
                       {(!ticket.offers || ticket.offers.length === 0) && (
-                        <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', textAlign: 'center', paddingTop: '1rem', paddingBottom: '1rem' }}>Waiting for offers...</p>
+                        <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', textAlign: 'center', paddingTop: '1rem', paddingBottom: '1rem' }}>Waiting for officers to respond...</p>
                       )}
                     </div>
                   </div>
                 )}
 
                 {ticket.officer && (
-                  <div style={{ padding: '1rem', background: 'rgba(255,255,255,0.03)', borderRadius: '0.5rem', marginBottom: '1.5rem', border: '1px solid var(--border)', display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                  <div style={{ padding: '1rem', background: 'rgba(255,255,255,0.03)', borderRadius: '0.5rem', border: '1px solid var(--border)', display: 'flex', alignItems: 'center', gap: '1rem' }}>
                     <img 
                       src={ticket.officer?.avatar_url || 'https://ui-avatars.com/api/?name=' + ticket.officer?.full_name} 
                       alt="" 
@@ -168,53 +135,15 @@ export default function UserPortal() {
                     <div style={{ flex: 1 }}>
                       <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Assigned Officer</p>
                       <p style={{ fontWeight: 600 }}>{ticket.officer.full_name}</p>
-                      <a href={`https://wa.me/${ticket.officer.phone_number}`} target="_blank" rel="noopener noreferrer" style={{ color: 'var(--primary)', fontSize: '0.8rem' }}>Chat on WhatsApp</a>
-                    </div>
-                  </div>
-                )}
-
-                {ticket.status === 'RESOLVED' && (
-                  <div style={{ 
-                    marginTop: '1.5rem', 
-                    padding: '1.5rem', 
-                    background: 'rgba(16, 185, 129, 0.05)', 
-                    borderRadius: '0.75rem', 
-                    border: '1px solid var(--success)',
-                    textAlign: 'center'
-                  }}>
-                    <p style={{ color: 'var(--success)', fontWeight: 700, marginBottom: '1rem', fontSize: '0.9rem' }}>
-                      🌟 Officer marked work as DONE!
-                    </p>
-                    <div style={{ display: 'flex', gap: '1rem' }}>
-                      <button 
-                        onClick={() => approveAndRelease(ticket.id, ticket.officer_id, ticket.budget)} 
-                        className="btn-primary" 
-                        style={{ flex: 2, background: 'var(--success)', border: 'none', padding: '0.8rem', fontWeight: 700 }}
-                      >
-                        Approve & Release Funds
-                      </button>
-                      <button 
-                        onClick={() => supabase.from('tickets').update({ status: 'DISPUTED' }).eq('id', ticket.id).then(() => fetchTickets())}
-                        style={{ flex: 1, border: '1px solid var(--danger)', color: 'var(--danger)', borderRadius: '0.5rem', fontSize: '0.8rem', background: 'transparent' }}
-                      >
-                        Dispute
-                      </button>
+                      <a href={`https://wa.me/${ticket.officer.phone_number}`} target="_blank" rel="noopener noreferrer" style={{ color: 'var(--primary)', fontSize: '0.8rem' }}>WhatsApp Chat</a>
                     </div>
                   </div>
                 )}
                 
-                {ticket.status === 'COMPLETED' && (
-                  <div style={{ textAlign: 'center', padding: '0.5rem', background: 'rgba(16, 185, 129, 0.1)', borderRadius: '0.5rem' }}>
-                    <p style={{ color: 'var(--success)', fontWeight: 600 }}>✅ Work Accepted</p>
+                {ticket.status === 'PENDING_PAYMENT' && (
+                  <div style={{ textAlign: 'center', padding: '1rem', background: 'rgba(245, 158, 11, 0.1)', borderRadius: '0.5rem' }}>
+                    <p style={{ color: 'var(--warning)', fontSize: '0.85rem', fontWeight: 600 }}>⚠️ Awaiting Listing Fee</p>
                   </div>
-                )}
-                
-                {ticket.status === 'FUNDED' && (
-                  <p style={{ color: 'var(--warning)', fontSize: '0.8rem', textAlign: 'center' }}>Searching for an Officer...</p>
-                )}
-
-                {ticket.status === 'ASSIGNED' && (
-                  <p style={{ color: 'var(--primary)', fontSize: '0.8rem', textAlign: 'center' }}>Officer is working on this...</p>
                 )}
               </div>
             ))}
