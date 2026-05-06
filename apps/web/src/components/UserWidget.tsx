@@ -86,6 +86,23 @@ export default function UserWidget({ user, profile }: UserWidgetProps) {
             padding: '0.5rem'
           }}>
             <Link
+              href="/profile"
+              onClick={() => setIsOpen(false)}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.75rem',
+                padding: '0.75rem 1rem',
+                borderRadius: '0.5rem',
+                color: 'var(--text)',
+                fontSize: '0.9rem',
+                transition: 'background 0.2s'
+              }}
+              className="nav-item-hover"
+            >
+              Profile Settings
+            </Link>
+            <Link
               href={getPortalLink()}
               onClick={() => setIsOpen(false)}
               style={{
