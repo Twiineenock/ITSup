@@ -1,0 +1,21 @@
+services:
+  - type: web
+    name: itsup-backend
+    runtime: node
+    plan: free
+    region: ohio
+    buildCommand: npm install && npm run build --workspace=@itsup/server
+    startCommand: npm run start --workspace=@itsup/server
+    envVars:
+      - key: NODE_VERSION
+        value: 20
+      - key: PORT
+        value: 10000
+      - key: SUPABASE_URL
+        fromDatabase:
+          name: itsup-db # If using Render PostgreSQL, otherwise manually set
+          property: connectionString
+      - key: SUPABASE_ANON_KEY
+        sync: false
+      - key: FLW_SECRET_KEY
+        sync: false

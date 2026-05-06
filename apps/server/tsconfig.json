@@ -1,0 +1,25 @@
+{
+  "compilerOptions": {
+    "target": "ES2020",
+    "module": "commonjs",
+    "lib": ["es2020"],
+    "outDir": "./dist",
+    "rootDir": "../../",
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "moduleResolution": "node",
+    "baseUrl": ".",
+    "paths": {
+      "@itsup/database": ["../../packages/database/index.ts"],
+      "@itsup/types": ["../../packages/types/index.ts"]
+    }
+  },
+  "include": [
+    "src/**/*",
+    "../../packages/database/**/*",
+    "../../packages/types/**/*"
+  ],
+  "exclude": ["node_modules", "dist"]
+}
