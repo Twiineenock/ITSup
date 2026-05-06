@@ -30,7 +30,7 @@ export default function TicketForm({ onSuccess }: TicketFormProps) {
       title: formData.get('title'),
       description: formData.get('description'),
       category: formData.get('category'),
-      budget: Number(formData.get('budget')),
+      budget: 0, // Set to 0 as it's no longer used
       user_id: user.id,
       status: 'PENDING_PAYMENT'
     };
@@ -114,21 +114,15 @@ export default function TicketForm({ onSuccess }: TicketFormProps) {
           <input name="title" required placeholder="e.g. My Laptop won't start" style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid var(--border)', padding: '0.75rem', borderRadius: '0.5rem', color: 'white' }} />
         </div>
 
-        <div style={{ display: 'flex', gap: '1rem' }}>
-          <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-            <label style={{ color: 'var(--text-muted)', fontSize: '0.9rem' }}>Category</label>
-            <select name="category" required style={{ background: 'var(--surface)', border: '1px solid var(--border)', padding: '0.75rem', borderRadius: '0.5rem', color: 'white' }}>
-              <option value="HARDWARE">Hardware Repair</option>
-              <option value="SOFTWARE">Software Install</option>
-              <option value="NETWORK">Networking</option>
-              <option value="REMOTE">Remote Troubleshooting</option>
-              <option value="CONSULTATION">Consultation</option>
-            </select>
-          </div>
-          <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-            <label style={{ color: 'var(--text-muted)', fontSize: '0.9rem' }}>Est. Budget (UGX)</label>
-            <input name="budget" type="number" required placeholder="200,000" style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid var(--border)', padding: '0.75rem', borderRadius: '0.5rem', color: 'white' }} />
-          </div>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+          <label style={{ color: 'var(--text-muted)', fontSize: '0.9rem' }}>Category</label>
+          <select name="category" required style={{ background: 'var(--surface)', border: '1px solid var(--border)', padding: '0.75rem', borderRadius: '0.5rem', color: 'white' }}>
+            <option value="HARDWARE">Hardware Repair</option>
+            <option value="SOFTWARE">Software Install</option>
+            <option value="NETWORK">Networking</option>
+            <option value="REMOTE">Remote Troubleshooting</option>
+            <option value="CONSULTATION">Consultation</option>
+          </select>
         </div>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>

@@ -89,7 +89,6 @@ export default function OfficerDashboard() {
                   <div key={ticket.id} className="glass-card animate-fade-in">
                     <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '1.5rem' }}>
                       <span className="badge badge-open">LIVE TICKET</span>
-                      <span style={{ fontWeight: 800, color: 'var(--primary)' }}>Est. {Number(ticket.budget).toLocaleString()} UGX</span>
                     </div>
 
                     {/* Customer Info */}
@@ -129,27 +128,13 @@ export default function OfficerDashboard() {
                         ✅ Interest Expressed
                       </div>
                     ) : (
-                      <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
-                        <div style={{ flex: 1 }}>
-                          <label style={{ display: 'block', fontSize: '0.75rem', color: 'var(--text-muted)', marginBottom: '0.4rem' }}>Your Quote (UGX)</label>
-                          <input 
-                            id={`price-${ticket.id}`}
-                            type="number" 
-                            defaultValue={ticket.budget} 
-                            style={{ width: '100%', background: 'rgba(0,0,0,0.2)', border: '1px solid var(--border)', padding: '0.6rem', borderRadius: '0.4rem', color: 'white' }}
-                          />
-                        </div>
-                        <button 
-                          onClick={() => {
-                            const price = (document.getElementById(`price-${ticket.id}`) as HTMLInputElement).value;
-                            expressInterest(ticket.id, Number(price));
-                          }} 
-                          className="btn-primary" 
-                          style={{ flex: 1, padding: '0.8rem', marginTop: '1.25rem' }}
-                        >
-                          Express Interest
-                        </button>
-                      </div>
+                      <button 
+                        onClick={() => expressInterest(ticket.id, 0)} 
+                        className="btn-primary" 
+                        style={{ width: '100%', padding: '0.8rem' }}
+                      >
+                        Express Interest
+                      </button>
                     )}
                   </div>
                 );

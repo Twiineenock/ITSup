@@ -72,7 +72,6 @@ export default function UserPortal() {
               <div key={ticket.id} className="glass-card" style={{ border: ticket.status === 'PENDING_PAYMENT' ? '1px dashed var(--warning)' : '1px solid var(--border)' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '1rem' }}>
                   <span className={`badge badge-${ticket.status.toLowerCase()}`}>{ticket.status.replace('_', ' ')}</span>
-                  <span style={{ fontWeight: 800 }}>{Number(ticket.budget).toLocaleString()} UGX</span>
                 </div>
                 <h3 style={{ fontSize: '1.25rem', marginBottom: '0.5rem' }}>{ticket.title}</h3>
                 <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', marginBottom: '1.5rem', height: '3rem', overflow: 'hidden' }}>{ticket.description}</p>
@@ -114,7 +113,6 @@ export default function UserPortal() {
                                 Chat on WhatsApp
                               </a>
                             </div>
-                            <p style={{ fontSize: '0.9rem', color: 'var(--primary)', fontWeight: 700 }}>{Number(offer.proposed_price).toLocaleString()} UGX</p>
                           </div>
                         </div>
                       ))}
