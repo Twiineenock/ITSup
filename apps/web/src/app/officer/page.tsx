@@ -25,7 +25,7 @@ export default function OfficerDashboard() {
         .select('rating')
         .eq('officer_id', user.id);
       
-      const ratings = ratingData?.map(r => r.rating) || [];
+      const ratings = ratingData?.map((r: any) => r.rating) || [];
       const top = ratings.length > 0 ? Math.max(...ratings) : 0;
       setMyRating(top);
 
