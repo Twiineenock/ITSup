@@ -18,6 +18,7 @@ export default function OfficerDashboard() {
   const [systemRating, setSystemRating] = useState(5);
   const [isReviewSubmitted, setIsReviewSubmitted] = useState(false);
   const [showReviewModal, setShowReviewModal] = useState(false);
+  const [isSubmittingReview, setIsSubmittingReview] = useState(false);
 
   async function fetchInitialData() {
     const { data: { user } } = await supabase.auth.getUser();
@@ -149,24 +150,35 @@ export default function OfficerDashboard() {
 
   const submitSystemReview = async () => {
     if (!systemReview.trim()) return;
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) return;
+    setIsSubmittingReview(true);
+    
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        showToast("Session expired. Please log in again.");
+        return;
+      }
 
-    const { error } = await supabase
-      .from('system_reviews')
-      .insert([{
-        user_id: user.id,
-        content: systemReview,
-        rating: systemRating
-      }]);
+      const { error } = await supabase
+        .from('system_reviews')
+        .insert([{
+          user_id: user.id,
+          content: systemReview,
+          rating: systemRating
+        }]);
 
-    if (!error) {
-      showToast("Thank you for your review! It is now live on our home page.");
-      setIsReviewSubmitted(true);
-      setShowReviewModal(false);
-      setSystemReview('');
-    } else {
-      showToast("Error submitting review: " + error.message);
+      if (!error) {
+        showToast("Thank you for your review! It is now live on our home page.");
+        setIsReviewSubmitted(true);
+        setShowReviewModal(false);
+        setSystemReview('');
+      } else {
+        showToast("Error submitting review: " + error.message);
+      }
+    } catch (err: any) {
+      showToast("An unexpected error occurred.");
+    } finally {
+      setIsSubmittingReview(false);
     }
   };
 
@@ -228,14 +240,22 @@ export default function OfficerDashboard() {
                 style={{ width: '100%', background: 'rgba(255,255,255,0.05)', border: '1px solid var(--border)', padding: '1.25rem', borderRadius: '0.75rem', color: 'white', minHeight: '120px', resize: 'none', marginBottom: '2rem', fontSize: '1rem' }}
               />
               
-              <button 
-                onClick={submitSystemReview}
-                className="btn-primary" 
-                style={{ width: '100%', padding: '1rem', background: '#22c55e', border: 'none' }}
-                disabled={!systemReview.trim()}
-              >
-                Submit Testimonial
-              </button>
+              <div style={{ display: 'flex', gap: '1rem' }}>
+                <button 
+                  onClick={() => setShowReviewModal(false)}
+                  style={{ flex: 1, padding: '1rem', background: 'rgba(255,255,255,0.05)', border: 'none', color: 'white', borderRadius: '0.5rem', cursor: 'pointer', fontWeight: 600 }}
+                >
+                  Cancel
+                </button>
+                <button 
+                  onClick={submitSystemReview}
+                  className="btn-primary" 
+                  style={{ flex: 2, padding: '1rem', background: '#22c55e', border: 'none' }}
+                  disabled={!systemReview.trim() || isSubmittingReview}
+                >
+                  {isSubmittingReview ? 'Submitting...' : 'Submit Testimonial'}
+                </button>
+              </div>
             </div>
           </div>
         )}
