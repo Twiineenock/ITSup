@@ -75,7 +75,10 @@ export default function TicketForm({ onSuccess }: TicketFormProps) {
           if (!updateError) {
             setSuccess(true);
             (e.target as HTMLFormElement).reset();
-            if (onSuccess) setTimeout(onSuccess, 1500);
+            // Force redirection to dashboard to close modal and refresh state
+            setTimeout(() => {
+              window.location.href = '/portal';
+            }, 1500);
           } else {
             setError("Payment successful, but failed to activate ticket. Please contact support.");
           }
