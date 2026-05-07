@@ -23,7 +23,7 @@ export default function PaymentButton({ ticketId, amount, email, name, onSuccess
     setLoading(true);
     
     window.FlutterwaveCheckout({
-      public_key: process.env.NEXT_PUBLIC_FLW_PUBLIC_KEY || "FLWPUBK_TEST-5e4d2b270a683935821c97a5a8286a10-X", // Fallback to test key if not set
+      public_key: process.env.NEXT_PUBLIC_FLW_PUBLIC_KEY || "FLWPUBK_TEST-efddd3bb2150d48b7cda2154514e8d2f-X", // Fallback to working TwiinePay key
       tx_ref: `ITSUP-${ticketId}-${Date.now()}`,
       amount: amount,
       currency: "UGX", // Defaulting to UGX for East Africa

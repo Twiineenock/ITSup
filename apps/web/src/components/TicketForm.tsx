@@ -50,7 +50,7 @@ export default function TicketForm({ onSuccess }: TicketFormProps) {
 
     // 2. Trigger Flutterwave for 5000 UGX Listing Fee
     window.FlutterwaveCheckout({
-      public_key: process.env.NEXT_PUBLIC_FLW_PUBLIC_KEY || "FLWPUBK_TEST-5e4d2b270a683935821c97a5a8286a10-X",
+      public_key: process.env.NEXT_PUBLIC_FLW_PUBLIC_KEY || "FLWPUBK_TEST-efddd3bb2150d48b7cda2154514e8d2f-X",
       tx_ref: `TICKET-LISTING-${data.id}-${Date.now()}`,
       amount: 5000,
       currency: "UGX",
