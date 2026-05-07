@@ -39,7 +39,7 @@ export default function AdminDashboard() {
 
   async function fetchData() {
     const [ticketsRes, usersRes] = await Promise.all([
-      supabase.from('tickets').select('*, customer:profiles!user_id(full_name, email), officer:profiles!officer_id(full_name)').order('created_at', { ascending: false }),
+      supabase.from('tickets').select('*, customer:profiles!user_id(full_name, phone_number), officer:profiles!officer_id(full_name, phone_number)').order('created_at', { ascending: false }),
       supabase.from('profiles').select('*').order('created_at', { ascending: false })
     ]);
 
@@ -77,7 +77,7 @@ export default function AdminDashboard() {
   if (loading || !isAdmin) return <div style={{ background: 'var(--bg)', minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white' }}>Verifying Admin Authority...</div>;
 
   const totalRevenue = tickets.filter(t => t.status !== 'PENDING_PAYMENT').length * 5000;
-  const filteredUsers = users.filter(u => u.full_name?.toLowerCase().includes(searchQuery.toLowerCase()) || u.email?.toLowerCase().includes(searchQuery.toLowerCase()));
+  const filteredUsers = users.filter(u => u.full_name?.toLowerCase().includes(searchQuery.toLowerCase()) || u.phone_number?.toLowerCase().includes(searchQuery.toLowerCase()));
 
   return (
     <main style={{ minHeight: '100vh', background: 'var(--bg)', color: 'var(--text)', display: 'flex', flexDirection: 'column' }}>
@@ -140,7 +140,7 @@ export default function AdminDashboard() {
                     </td>
                     <td style={{ padding: '1.5rem' }}>
                       <p style={{ fontWeight: 600 }}>{ticket.customer?.full_name}</p>
-                      <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{ticket.customer?.email}</p>
+                      <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{ticket.customer?.phone_number}</p>
                     </td>
                     <td style={{ padding: '1.5rem' }}>
                       {ticket.officer ? (
@@ -188,7 +188,7 @@ export default function AdminDashboard() {
                     <tr key={user.id} style={{ borderBottom: '1px solid var(--border)', opacity: user.is_suspended ? 0.6 : 1 }}>
                       <td style={{ padding: '1.5rem' }}>
                         <p style={{ fontWeight: 700 }}>{user.full_name}</p>
-                        <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>{user.email}</p>
+                        <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>{user.phone_number}</p>
                       </td>
                       <td style={{ padding: '1.5rem' }}>{user.role}</td>
                       <td style={{ padding: '1.5rem' }}>
