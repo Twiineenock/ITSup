@@ -9,11 +9,25 @@ if (!supabaseUrl || !supabaseKey) {
   console.log('DEBUG: Supabase Client Initialized with URL:', supabaseUrl);
 }
 
+// Helper to get a unique ID for the current browser tab to isolate sessions
+const getTabId = () => {
+  if (typeof window === 'undefined') return 'server';
+  // Use window.name as it is unique per tab and survives refreshes, 
+  // but isn't usually shared when opening links in new tabs.
+  if (!window.name || !window.name.startsWith('itsup-tab-')) {
+    window.name = `itsup-tab-${Math.random().toString(36).substring(2, 10)}`;
+  }
+  return window.name;
+};
+
+const tabId = getTabId();
+
 // Only create client if credentials exist to avoid throwing error at startup
 export const supabase = (supabaseUrl && supabaseKey) 
   ? createClient(supabaseUrl, supabaseKey, {
       auth: {
         storage: typeof window !== 'undefined' ? window.sessionStorage : undefined,
+        storageKey: `itsup-auth-token-${tabId}`,
         persistSession: true,
         autoRefreshToken: true,
         detectSessionInUrl: true
