@@ -20,6 +20,7 @@ export default function UserPortal() {
   const [systemReview, setSystemReview] = useState('');
   const [systemRating, setSystemRating] = useState(5);
   const [isReviewSubmitted, setIsReviewSubmitted] = useState(false);
+  const [showReviewModal, setShowReviewModal] = useState(false);
 
   async function fetchTickets() {
     const { data: { user } } = await supabase.auth.getUser();
@@ -154,6 +155,7 @@ export default function UserPortal() {
     if (!error) {
       showToast("Thank you for your review! It is now live on our home page.");
       setIsReviewSubmitted(true);
+      setShowReviewModal(false);
       setSystemReview('');
     } else {
       showToast("Error submitting review: " + error.message);
@@ -257,14 +259,62 @@ export default function UserPortal() {
             <h1 style={{ fontSize: '2.5rem', fontWeight: 800 }}>My Support Dashboard</h1>
             <p style={{ color: 'var(--text-muted)', fontSize: '1.1rem' }}>Manage your technical requests and connect with expert officers.</p>
           </div>
-          <button 
-            onClick={() => setShowForm(true)} 
-            className="btn-primary" 
-            style={{ padding: '0.75rem 2rem' }}
-          >
-            + New Support Ticket
-          </button>
+          <div>
+            <button onClick={() => setShowReviewModal(true)} style={{ marginRight: '1rem', background: 'transparent', border: '1px solid var(--border)', color: 'var(--text-muted)', padding: '0.75rem 1.5rem', borderRadius: '0.5rem', fontSize: '0.9rem', cursor: 'pointer', fontWeight: 600 }}>
+              {isReviewSubmitted ? '✓ Feedback Sent' : 'Share Feedback'}
+            </button>
+            <button 
+              onClick={() => setShowForm(true)} 
+              className="btn-primary" 
+              style={{ padding: '0.75rem 2rem' }}
+            >
+              Post New Ticket
+            </button>
+          </div>
         </header>
+
+        {showReviewModal && (
+          <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.85)', backdropFilter: 'blur(10px)', zIndex: 1100, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem' }}>
+            <div className="glass-card" style={{ width: '100%', maxWidth: '500px', padding: '3rem', position: 'relative', border: '1px solid var(--primary)' }}>
+              <button 
+                onClick={() => setShowReviewModal(false)}
+                style={{ position: 'absolute', top: '1.5rem', right: '1.5rem', background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', fontSize: '1.2rem' }}
+              >
+                ✕
+              </button>
+              <h2 style={{ fontSize: '1.75rem', fontWeight: 800, marginBottom: '1rem' }}>Share Your Experience</h2>
+              <p style={{ color: 'var(--text-muted)', marginBottom: '2.5rem' }}>How are you enjoying ITSup? Your testimonial will appear on our homepage!</p>
+              
+              <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '2rem', justifyContent: 'center' }}>
+                {[1, 2, 3, 4, 5].map((star) => (
+                  <button 
+                    key={star} 
+                    onClick={() => setSystemRating(star)}
+                    style={{ background: 'none', border: 'none', fontSize: '2.5rem', cursor: 'pointer', color: star <= systemRating ? '#FBBF24' : 'rgba(255,255,255,0.1)' }}
+                  >
+                    ★
+                  </button>
+                ))}
+              </div>
+
+              <textarea 
+                placeholder="Write your testimonial here..." 
+                value={systemReview}
+                onChange={(e) => setSystemReview(e.target.value)}
+                style={{ width: '100%', background: 'rgba(255,255,255,0.05)', border: '1px solid var(--border)', padding: '1.25rem', borderRadius: '0.75rem', color: 'white', minHeight: '120px', resize: 'none', marginBottom: '2rem', fontSize: '1rem' }}
+              />
+              
+              <button 
+                onClick={submitSystemReview}
+                className="btn-primary" 
+                style={{ width: '100%', padding: '1rem' }}
+                disabled={!systemReview.trim()}
+              >
+                Submit Testimonial
+              </button>
+            </div>
+          </div>
+        )}
 
         {showForm && (
           <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.8)', backdropFilter: 'blur(8px)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem' }}>

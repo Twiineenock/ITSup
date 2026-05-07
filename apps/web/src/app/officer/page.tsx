@@ -17,6 +17,7 @@ export default function OfficerDashboard() {
   const [systemReview, setSystemReview] = useState('');
   const [systemRating, setSystemRating] = useState(5);
   const [isReviewSubmitted, setIsReviewSubmitted] = useState(false);
+  const [showReviewModal, setShowReviewModal] = useState(false);
 
   async function fetchInitialData() {
     const { data: { user } } = await supabase.auth.getUser();
@@ -162,6 +163,7 @@ export default function OfficerDashboard() {
     if (!error) {
       showToast("Thank you for your review! It is now live on our home page.");
       setIsReviewSubmitted(true);
+      setShowReviewModal(false);
       setSystemReview('');
     } else {
       showToast("Error submitting review: " + error.message);
@@ -180,9 +182,14 @@ export default function OfficerDashboard() {
 
       <div className="container" style={{ flex: 1, padding: '4rem 2rem' }}>
         <header style={{ marginBottom: '4rem', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
-          <div>
-            <h1 style={{ fontSize: '2.5rem', fontWeight: 800 }}>Officer Command Center</h1>
-            <p style={{ color: 'var(--text-muted)', fontSize: '1.1rem' }}>Manage your active work and browse new opportunities.</p>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem' }}>
+            <button onClick={() => setShowReviewModal(true)} style={{ background: 'transparent', border: '1px solid var(--border)', color: 'var(--text-muted)', padding: '0.6rem 1.25rem', borderRadius: '0.4rem', fontSize: '0.85rem', cursor: 'pointer', fontWeight: 600 }}>
+              {isReviewSubmitted ? '✓ Feedback Sent' : 'Platform Feedback'}
+            </button>
+            <div>
+              <h1 style={{ fontSize: '2.5rem', fontWeight: 800 }}>Officer Command Center</h1>
+              <p style={{ color: 'var(--text-muted)', fontSize: '1.1rem' }}>Manage your active work and browse new opportunities.</p>
+            </div>
           </div>
           <div style={{ textAlign: 'right' }}>
             <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '0.5rem' }}>Your Reputation</p>
@@ -195,40 +202,47 @@ export default function OfficerDashboard() {
           </div>
         </header>
         
-        {!isReviewSubmitted && (
-          <section className="glass-card" style={{ padding: '3rem', marginBottom: '4rem', background: 'rgba(34, 197, 94, 0.03)', border: '1px solid rgba(34, 197, 94, 0.1)' }}>
-            <h2 style={{ fontSize: '1.5rem', fontWeight: 800, marginBottom: '1rem' }}>How's Your Officer Experience?</h2>
-            <p style={{ color: 'var(--text-muted)', marginBottom: '2rem' }}>Share your feedback about the ITSup platform. Your review will appear on our homepage!</p>
-            
-            <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1.5rem' }}>
-              {[1, 2, 3, 4, 5].map((star) => (
-                <button 
-                  key={star} 
-                  onClick={() => setSystemRating(star)}
-                  style={{ background: 'none', border: 'none', fontSize: '1.5rem', cursor: 'pointer', color: star <= systemRating ? '#FBBF24' : 'rgba(255,255,255,0.1)' }}
-                >
-                  ★
-                </button>
-              ))}
-            </div>
+        {showReviewModal && (
+          <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.85)', backdropFilter: 'blur(10px)', zIndex: 1100, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem' }}>
+            <div className="glass-card" style={{ width: '100%', maxWidth: '500px', padding: '3rem', position: 'relative', border: '1px solid #22c55e' }}>
+              <button 
+                onClick={() => setShowReviewModal(false)}
+                style={{ position: 'absolute', top: '1.5rem', right: '1.5rem', background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', fontSize: '1.2rem' }}
+              >
+                ✕
+              </button>
+              <h2 style={{ fontSize: '1.75rem', fontWeight: 800, marginBottom: '1rem' }}>How's Your Officer Experience?</h2>
+              <p style={{ color: 'var(--text-muted)', marginBottom: '2.5rem' }}>Share your feedback about the ITSup platform. Your review will appear on our homepage!</p>
+              
+              <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '2rem', justifyContent: 'center' }}>
+                {[1, 2, 3, 4, 5].map((star) => (
+                  <button 
+                    key={star} 
+                    onClick={() => setSystemRating(star)}
+                    style={{ background: 'none', border: 'none', fontSize: '2.5rem', cursor: 'pointer', color: star <= systemRating ? '#FBBF24' : 'rgba(255,255,255,0.1)' }}
+                  >
+                    ★
+                  </button>
+                ))}
+              </div>
 
-            <div style={{ display: 'flex', gap: '1rem' }}>
               <textarea 
                 placeholder="Write a testimonial about being an officer on ITSup..." 
                 value={systemReview}
                 onChange={(e) => setSystemReview(e.target.value)}
-                style={{ flex: 1, background: 'rgba(255,255,255,0.05)', border: '1px solid var(--border)', padding: '1rem', borderRadius: '0.5rem', color: 'white', minHeight: '80px', resize: 'none' }}
+                style={{ width: '100%', background: 'rgba(255,255,255,0.05)', border: '1px solid var(--border)', padding: '1.25rem', borderRadius: '0.75rem', color: 'white', minHeight: '120px', resize: 'none', marginBottom: '2rem', fontSize: '1rem' }}
               />
+              
               <button 
                 onClick={submitSystemReview}
                 className="btn-primary" 
-                style={{ padding: '0 2rem', background: '#22c55e', border: 'none' }}
+                style={{ width: '100%', padding: '1rem', background: '#22c55e', border: 'none' }}
                 disabled={!systemReview.trim()}
               >
                 Submit Testimonial
               </button>
             </div>
-          </section>
+          </div>
         )}
 
         {loading ? (
