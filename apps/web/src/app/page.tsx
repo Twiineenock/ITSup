@@ -50,53 +50,16 @@ export default function Home() {
     <main style={{ background: 'var(--bg)', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
       <Navbar />
 
-      {/* Split Hero Section - Reviews on the Left, Hero on the Right */}
+      {/* Split Hero Section - Hero on the Left, Reviews on the Right */}
       <section style={{ 
         padding: '6rem 0', 
-        background: 'radial-gradient(circle at 70% -20%, rgba(99, 102, 241, 0.15), transparent 50%)',
+        background: 'radial-gradient(circle at 30% -20%, rgba(99, 102, 241, 0.15), transparent 50%)',
         position: 'relative',
         overflow: 'hidden'
       }}>
         <div className="container" style={{ display: 'flex', gap: '4rem', alignItems: 'flex-start' }}>
           
-          {/* Left Side: Testimonials Column */}
-          <div style={{ flex: '0 0 350px', display: 'flex', flexDirection: 'column', gap: '1.5rem', maxHeight: '800px', overflowY: 'auto', paddingRight: '1rem', scrollbarWidth: 'none' }}>
-            <h3 style={{ fontSize: '0.9rem', fontWeight: 800, color: 'var(--primary)', letterSpacing: '2px', textTransform: 'uppercase', marginBottom: '0.5rem' }}>User Voice</h3>
-            {reviews.length > 0 ? (
-              reviews.map((review, i) => (
-                <div key={i} className="glass-card" style={{ 
-                  padding: '1.5rem', 
-                  border: '1px solid rgba(99, 102, 241, 0.1)',
-                  background: 'rgba(255,255,255,0.02)',
-                  fontSize: '0.9rem'
-                }}>
-                  <div style={{ display: 'flex', gap: '2px', color: '#FBBF24', fontSize: '0.8rem', marginBottom: '0.75rem' }}>
-                    {[...Array(review.rating)].map((_, j) => <span key={j}>★</span>)}
-                  </div>
-                  <p style={{ color: 'white', marginBottom: '1rem', fontStyle: 'italic', lineHeight: 1.5 }}>
-                    "{review.content}"
-                  </p>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                    <img 
-                      src={review.profile?.avatar_url || `https://ui-avatars.com/api/?name=${review.profile?.full_name || 'User'}&background=6366f1&color=fff`} 
-                      alt="" 
-                      style={{ width: '32px', height: '32px', borderRadius: '50%' }}
-                    />
-                    <div>
-                      <p style={{ fontWeight: 700, fontSize: '0.8rem' }}>{review.profile?.full_name}</p>
-                      <p style={{ fontSize: '0.7rem', color: 'var(--primary)', fontWeight: 800, textTransform: 'uppercase' }}>{review.profile?.role}</p>
-                    </div>
-                  </div>
-                </div>
-              ))
-            ) : (
-              <div style={{ color: 'var(--text-muted)', fontSize: '0.9rem', fontStyle: 'italic' }}>
-                Join our community of satisfied users...
-              </div>
-            )}
-          </div>
-
-          {/* Right Side: Hero Content */}
+          {/* Left Side: Hero Content */}
           <div style={{ flex: 1, textAlign: 'left' }}>
             <div className="badge badge-open animate-fade-in" style={{ marginBottom: '2.5rem', display: 'inline-block' }}>
               ✨ {user ? `Welcome back, ${profile?.full_name || 'Partner'}` : 'The Future of IT Support is Here'}
@@ -141,6 +104,43 @@ export default function Home() {
                 {user ? 'Browse Available Tickets' : 'Work & Earn Money'}
               </Link>
             </div>
+          </div>
+
+          {/* Right Side: Testimonials Column */}
+          <div style={{ flex: '0 0 380px', display: 'flex', flexDirection: 'column', gap: '1.5rem', maxHeight: '750px', overflowY: 'auto', paddingRight: '1rem', scrollbarWidth: 'none' }}>
+            <h3 style={{ fontSize: '0.9rem', fontWeight: 800, color: 'var(--primary)', letterSpacing: '2px', textTransform: 'uppercase', marginBottom: '0.5rem' }}>User Voice</h3>
+            {reviews.length > 0 ? (
+              reviews.map((review, i) => (
+                <div key={i} className="glass-card" style={{ 
+                  padding: '1.5rem', 
+                  border: '1px solid rgba(99, 102, 241, 0.1)',
+                  background: 'rgba(255,255,255,0.02)',
+                  fontSize: '0.9rem'
+                }}>
+                  <div style={{ display: 'flex', gap: '2px', color: '#FBBF24', fontSize: '0.8rem', marginBottom: '0.75rem' }}>
+                    {[...Array(review.rating)].map((_, j) => <span key={j}>★</span>)}
+                  </div>
+                  <p style={{ color: 'white', marginBottom: '1rem', fontStyle: 'italic', lineHeight: 1.5 }}>
+                    "{review.content}"
+                  </p>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                    <img 
+                      src={review.profile?.avatar_url || `https://ui-avatars.com/api/?name=${review.profile?.full_name || 'User'}&background=6366f1&color=fff`} 
+                      alt="" 
+                      style={{ width: '32px', height: '32px', borderRadius: '50%' }}
+                    />
+                    <div>
+                      <p style={{ fontWeight: 700, fontSize: '0.8rem' }}>{review.profile?.full_name}</p>
+                      <p style={{ fontSize: '0.7rem', color: 'var(--primary)', fontWeight: 800, textTransform: 'uppercase' }}>{review.profile?.role}</p>
+                    </div>
+                  </div>
+                </div>
+              ))
+            ) : (
+              <div style={{ color: 'var(--text-muted)', fontSize: '0.9rem', fontStyle: 'italic' }}>
+                Join our community of satisfied users...
+              </div>
+            )}
           </div>
         </div>
       </section>
