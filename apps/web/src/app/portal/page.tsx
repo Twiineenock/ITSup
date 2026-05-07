@@ -44,7 +44,7 @@ export default function UserPortal() {
     
     if (!error) {
       // Post-process to find the MAX rating for each officer
-      const processed = data.map(ticket => {
+      const processed = data.map((ticket: any) => {
         const processOfficer = (off: any) => {
           if (!off) return null;
           const ratings = off.reviews?.map((r: any) => r.rating) || [];
