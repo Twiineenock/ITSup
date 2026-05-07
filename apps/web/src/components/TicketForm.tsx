@@ -150,18 +150,18 @@ export default function TicketForm({ onSuccess, onCancel }: TicketFormProps) {
         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
           <label style={{ color: 'var(--text-muted)', fontSize: '0.9rem' }}>Service Category</label>
           <select name="category" required style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid var(--border)', padding: '0.75rem', borderRadius: '0.5rem', color: 'white', appearance: 'none', cursor: 'pointer' }}>
-            <option style={{ background: '#1a1b1e', color: 'white' }} value="Hardware Repair">🛠️ Hardware Repair</option>
-            <option style={{ background: '#1a1b1e', color: 'white' }} value="Software Installation">💿 Software Installation</option>
-            <option style={{ background: '#1a1b1e', color: 'white' }} value="System Updates">🔄 System Updates</option>
-            <option style={{ background: '#1a1b1e', color: 'white' }} value="Network Configuration">🌐 Network Configuration</option>
-            <option style={{ background: '#1a1b1e', color: 'white' }} value="IT Consultation">💡 IT Consultation</option>
-            <option style={{ background: '#1a1b1e', color: 'white' }} value="Equipment Setup">🖨️ Equipment Setup</option>
-            <option style={{ background: '#1a1b1e', color: 'white' }} value="Cybersecurity Audit">🛡️ Cybersecurity Audit</option>
-            <option style={{ background: '#1a1b1e', color: 'white' }} value="Data Recovery">💾 Data Recovery</option>
-            <option style={{ background: '#1a1b1e', color: 'white' }} value="Cloud Migration">☁️ Cloud Migration</option>
-            <option style={{ background: '#1a1b1e', color: 'white' }} value="Remote Support">🎧 Remote Support</option>
-            <option style={{ background: '#1a1b1e', color: 'white' }} value="Expert Consultation">👨‍💼 Expert Consultation</option>
-            <option style={{ background: '#1a1b1e', color: 'white' }} value="Other">❓ Other</option>
+            <option style={{ background: '#1a1b1e', color: 'white' }} value="HARDWARE">🛠️ Hardware Repair</option>
+            <option style={{ background: '#1a1b1e', color: 'white' }} value="SOFTWARE">💿 Software Installation</option>
+            <option style={{ background: '#1a1b1e', color: 'white' }} value="SOFTWARE">🔄 System Updates</option>
+            <option style={{ background: '#1a1b1e', color: 'white' }} value="NETWORK">🌐 Network Configuration</option>
+            <option style={{ background: '#1a1b1e', color: 'white' }} value="CONSULTATION">💡 IT Consultation</option>
+            <option style={{ background: '#1a1b1e', color: 'white' }} value="HARDWARE">🖨️ Equipment Setup</option>
+            <option style={{ background: '#1a1b1e', color: 'white' }} value="NETWORK">🛡️ Cybersecurity Audit</option>
+            <option style={{ background: '#1a1b1e', color: 'white' }} value="SOFTWARE">💾 Data Recovery</option>
+            <option style={{ background: '#1a1b1e', color: 'white' }} value="NETWORK">☁️ Cloud Migration</option>
+            <option style={{ background: '#1a1b1e', color: 'white' }} value="REMOTE">🎧 Remote Support</option>
+            <option style={{ background: '#1a1b1e', color: 'white' }} value="CONSULTATION">👨‍💼 Expert Consultation</option>
+            <option style={{ background: '#1a1b1e', color: 'white' }} value="CONSULTATION">❓ Other</option>
           </select>
         </div>
 
