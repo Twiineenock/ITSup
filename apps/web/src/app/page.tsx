@@ -50,46 +50,54 @@ export default function Home() {
     <main style={{ background: 'var(--bg)', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
       <Navbar />
 
-      {/* Premium Horizontal Review Ticker - TOP SECTION */}
+      {/* Premium Integrated Review Ticker */}
       <section style={{ 
-        padding: '0.75rem 0', 
-        background: '#ffffff', 
-        borderBottom: '1px solid #e2e8f0',
+        padding: '1.5rem 0', 
+        background: 'rgba(99, 102, 241, 0.05)', 
+        borderBottom: '1px solid rgba(99, 102, 241, 0.1)',
         position: 'relative',
         overflow: 'hidden',
-        zIndex: 10
+        zIndex: 10,
+        backdropFilter: 'blur(5px)'
       }}>
-        <div style={{ display: 'flex', whiteSpace: 'nowrap', animation: reviews.length > 3 ? 'scroll 60s linear infinite' : 'none' }}>
+        <div style={{ 
+          display: 'flex', 
+          whiteSpace: 'nowrap', 
+          animation: reviews.length > 2 ? 'scroll 40s linear infinite' : 'none',
+          justifyContent: reviews.length <= 2 ? 'center' : 'flex-start',
+          gap: '4rem'
+        }}>
           {reviews.length > 0 ? (
-            // Duplicate the reviews to create a seamless loop
-            [...reviews, ...reviews, ...reviews].map((review, i) => (
+            // Only loop if we have enough content to fill the screen
+            (reviews.length > 2 ? [...reviews, ...reviews] : reviews).map((review, i) => (
               <div key={i} style={{ 
                 display: 'inline-flex', 
                 alignItems: 'center', 
-                gap: '1rem', 
-                padding: '0 3rem',
-                borderRight: '1px solid #f1f5f9'
+                gap: '1.5rem', 
+                padding: '0 2rem'
               }}>
-                <div style={{ display: 'flex', gap: '2px', color: '#FBBF24', fontSize: '0.8rem' }}>
+                <div style={{ display: 'flex', gap: '4px', color: '#FBBF24', fontSize: '1.2rem' }}>
                   {[...Array(review.rating)].map((_, i) => <span key={i}>★</span>)}
                 </div>
-                <p style={{ fontSize: '0.9rem', color: '#1e293b', fontWeight: 500 }}>
+                <p style={{ fontSize: '1.2rem', color: 'white', fontWeight: 600, letterSpacing: '0.5px' }}>
                   "{review.content}"
                 </p>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', borderLeft: '1px solid rgba(255,255,255,0.1)', paddingLeft: '1.5rem' }}>
                   <img 
                     src={review.profile?.avatar_url || `https://ui-avatars.com/api/?name=${review.profile?.full_name || 'User'}&background=6366f1&color=fff`} 
                     alt="" 
-                    style={{ width: '24px', height: '24px', borderRadius: '50%' }}
+                    style={{ width: '32px', height: '32px', borderRadius: '50%', border: '2px solid var(--primary)' }}
                   />
-                  <span style={{ fontWeight: 700, fontSize: '0.8rem', color: '#64748b' }}>{review.profile?.full_name}</span>
-                  <span style={{ fontSize: '0.7rem', color: '#94a3b8', fontWeight: 600 }}>({review.profile?.role})</span>
+                  <div>
+                    <p style={{ fontWeight: 800, fontSize: '0.9rem', color: 'white' }}>{review.profile?.full_name}</p>
+                    <p style={{ fontSize: '0.7rem', color: 'var(--primary)', fontWeight: 900, textTransform: 'uppercase' }}>{review.profile?.role}</p>
+                  </div>
                 </div>
               </div>
             ))
           ) : (
-            <div style={{ width: '100%', textAlign: 'center', color: '#64748b', fontSize: '0.9rem', fontWeight: 600 }}>
-              ✨ JOIN OVER 5,000+ USERS GETTING EXPERT IT SUPPORT ON ITSUP
+            <div style={{ textAlign: 'center', color: 'var(--text-muted)', fontSize: '1rem', fontWeight: 700, letterSpacing: '2px' }}>
+              🚀 SECURING THE FUTURE OF IT SUPPORT WITH ESCROW PAYMENTS
             </div>
           )}
         </div>
@@ -97,7 +105,7 @@ export default function Home() {
         <style jsx>{`
           @keyframes scroll {
             0% { transform: translateX(0); }
-            100% { transform: translateX(-33.33%); }
+            100% { transform: translateX(-50%); }
           }
         `}</style>
       </section>
