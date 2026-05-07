@@ -143,8 +143,36 @@ export default function UserPortal() {
                 
                 {ticket.status === 'PENDING_PAYMENT' && (
                   <div style={{ textAlign: 'center', padding: '1.5rem', background: 'rgba(245, 158, 11, 0.05)', borderRadius: '0.5rem', border: '1px solid rgba(245, 158, 11, 0.2)' }}>
-                    <p style={{ color: 'var(--warning)', fontSize: '0.85rem', fontWeight: 600, marginBottom: '0.5rem' }}>Awaiting 5,000 UGX Listing Fee</p>
-                    <p style={{ color: 'var(--text-muted)', fontSize: '0.75rem' }}>This ticket is hidden from officers until published.</p>
+                    <p style={{ color: 'var(--warning)', fontSize: '0.85rem', fontWeight: 600, marginBottom: '1rem' }}>Awaiting 5,000 UGX Listing Fee</p>
+                    <button 
+                      onClick={() => {
+                        // Re-trigger payment for this specific ticket
+                        const user = supabase.auth.getUser().then(({data: {user}}) => {
+                          if (!user) return;
+                          window.FlutterwaveCheckout({
+                            public_key: process.env.NEXT_PUBLIC_FLW_PUBLIC_KEY || "FLWPUBK_TEST-efddd3bb2150d48b7cda2154514e8d2f-X",
+                            tx_ref: `TICKET-RETRY-${ticket.id}-${Date.now()}`,
+                            amount: 5000,
+                            currency: "UGX",
+                            payment_options: "mobilemoneyuganda, card",
+                            customer: {
+                              email: user.email || "",
+                              name: user.user_metadata?.full_name || "Customer",
+                            },
+                            callback: async (paymentData: any) => {
+                              if (paymentData.status === "successful" || paymentData.status === "completed") {
+                                await supabase.from('tickets').update({ status: 'OPEN' }).eq('id', ticket.id);
+                                window.location.reload();
+                              }
+                            }
+                          });
+                        });
+                      }}
+                      className="btn-primary" 
+                      style={{ padding: '0.5rem 1rem', fontSize: '0.8rem', width: '100%' }}
+                    >
+                      Pay & Publish Now
+                    </button>
                   </div>
                 )}
               </div>

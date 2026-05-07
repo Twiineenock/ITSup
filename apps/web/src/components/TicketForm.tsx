@@ -65,7 +65,8 @@ export default function TicketForm({ onSuccess }: TicketFormProps) {
         logo: "https://itsup.app/logo.png",
       },
       callback: async (paymentData: any) => {
-        if (paymentData.status === "successful") {
+        console.log("Flutterwave Callback:", paymentData);
+        if (paymentData.status === "successful" || paymentData.status === "completed") {
           // 3. Update status to OPEN on success
           const { error: updateError } = await supabase
             .from('tickets')
@@ -73,17 +74,18 @@ export default function TicketForm({ onSuccess }: TicketFormProps) {
             .eq('id', data.id);
 
           if (!updateError) {
+            console.log("Ticket activated successfully");
             setSuccess(true);
-            (e.target as HTMLFormElement).reset();
-            // Force redirection to dashboard to close modal and refresh state
+            // Wait a bit so the user sees the success message
             setTimeout(() => {
               window.location.href = '/portal';
             }, 1500);
           } else {
-            setError("Payment successful, but failed to activate ticket. Please contact support.");
+            console.error("Supabase Update Error:", updateError);
+            setError(`Payment successful, but failed to activate ticket: ${updateError.message}`);
           }
         } else {
-          setError("Payment was not successful. Please try again.");
+          setError("Payment was not successful. Status: " + paymentData.status);
         }
         setLoading(false);
       },
