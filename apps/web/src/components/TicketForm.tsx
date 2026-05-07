@@ -147,13 +147,20 @@ export default function TicketForm({ onSuccess }: TicketFormProps) {
         </div>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-          <label style={{ color: 'var(--text-muted)', fontSize: '0.9rem' }}>Category</label>
-          <select name="category" required style={{ background: 'var(--surface)', border: '1px solid var(--border)', padding: '0.75rem', borderRadius: '0.5rem', color: 'white' }}>
-            <option value="HARDWARE">Hardware Repair</option>
-            <option value="SOFTWARE">Software Install</option>
-            <option value="NETWORK">Networking</option>
-            <option value="REMOTE">Remote Troubleshooting</option>
-            <option value="CONSULTATION">Consultation</option>
+          <label style={{ color: 'var(--text-muted)', fontSize: '0.9rem' }}>Service Category</label>
+          <select name="category" required style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid var(--border)', padding: '0.75rem', borderRadius: '0.5rem', color: 'white' }}>
+            <option value="Hardware Repair">🛠️ Hardware Repair</option>
+            <option value="Software Installation">💿 Software Installation</option>
+            <option value="System Updates">🔄 System Updates</option>
+            <option value="Network Configuration">🌐 Network Configuration</option>
+            <option value="IT Consultation">💡 IT Consultation</option>
+            <option value="Equipment Setup">🖨️ Equipment Setup</option>
+            <option value="Cybersecurity Audit">🛡️ Cybersecurity Audit</option>
+            <option value="Data Recovery">💾 Data Recovery</option>
+            <option value="Cloud Migration">☁️ Cloud Migration</option>
+            <option value="Remote Support">🎧 Remote Support</option>
+            <option value="Expert Consultation">👨‍💼 Expert Consultation</option>
+            <option value="Other">❓ Other</option>
           </select>
         </div>
 
