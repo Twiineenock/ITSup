@@ -50,122 +50,97 @@ export default function Home() {
     <main style={{ background: 'var(--bg)', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
       <Navbar />
 
-      {/* Premium Vertical Stacking Testimonials */}
+      {/* Split Hero Section - Reviews on the Left, Hero on the Right */}
       <section style={{ 
-        padding: '4rem 0', 
-        background: 'linear-gradient(to bottom, rgba(99, 102, 241, 0.05), transparent)', 
-        borderBottom: '1px solid rgba(99, 102, 241, 0.1)',
+        padding: '6rem 0', 
+        background: 'radial-gradient(circle at 70% -20%, rgba(99, 102, 241, 0.15), transparent 50%)',
         position: 'relative',
-        zIndex: 10
+        overflow: 'hidden'
       }}>
-        <div className="container">
-          <div style={{ textAlign: 'center', marginBottom: '3rem' }}>
-            <h2 style={{ fontSize: '1.5rem', fontWeight: 800, color: 'var(--primary)', letterSpacing: '2px', textTransform: 'uppercase', marginBottom: '1rem' }}>User Voice</h2>
-            <p style={{ color: 'var(--text-muted)' }}>Real feedback from our professional community</p>
-          </div>
+        <div className="container" style={{ display: 'flex', gap: '4rem', alignItems: 'flex-start' }}>
           
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', maxWidth: '900px', margin: '0 auto' }}>
+          {/* Left Side: Testimonials Column */}
+          <div style={{ flex: '0 0 350px', display: 'flex', flexDirection: 'column', gap: '1.5rem', maxHeight: '800px', overflowY: 'auto', paddingRight: '1rem', scrollbarWidth: 'none' }}>
+            <h3 style={{ fontSize: '0.9rem', fontWeight: 800, color: 'var(--primary)', letterSpacing: '2px', textTransform: 'uppercase', marginBottom: '0.5rem' }}>User Voice</h3>
             {reviews.length > 0 ? (
               reviews.map((review, i) => (
                 <div key={i} className="glass-card" style={{ 
-                  padding: '2.5rem', 
-                  display: 'flex', 
-                  flexDirection: 'column', 
-                  gap: '1.5rem',
-                  border: '1px solid rgba(99, 102, 241, 0.2)',
+                  padding: '1.5rem', 
+                  border: '1px solid rgba(99, 102, 241, 0.1)',
                   background: 'rgba(255,255,255,0.02)',
-                  position: 'relative',
-                  overflow: 'hidden'
+                  fontSize: '0.9rem'
                 }}>
-                  {/* Decorative glowing background */}
-                  <div style={{ position: 'absolute', top: '-50%', left: '-20%', width: '100%', height: '200%', background: 'radial-gradient(circle, rgba(99, 102, 241, 0.05) 0%, transparent 70%)', zIndex: -1 }}></div>
-
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '1.25rem' }}>
-                      <img 
-                        src={review.profile?.avatar_url || `https://ui-avatars.com/api/?name=${review.profile?.full_name || 'User'}&background=6366f1&color=fff`} 
-                        alt="" 
-                        style={{ width: '56px', height: '56px', borderRadius: '50%', border: '2px solid var(--primary)', padding: '2px' }}
-                      />
-                      <div>
-                        <p style={{ fontWeight: 800, fontSize: '1.1rem', color: 'white' }}>{review.profile?.full_name}</p>
-                        <p style={{ fontSize: '0.8rem', color: 'var(--primary)', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '1px' }}>{review.profile?.role}</p>
-                      </div>
-                    </div>
-                    <div style={{ display: 'flex', gap: '4px', color: '#FBBF24', fontSize: '1.2rem' }}>
-                      {[...Array(review.rating)].map((_, i) => <span key={i}>★</span>)}
-                    </div>
+                  <div style={{ display: 'flex', gap: '2px', color: '#FBBF24', fontSize: '0.8rem', marginBottom: '0.75rem' }}>
+                    {[...Array(review.rating)].map((_, j) => <span key={j}>★</span>)}
                   </div>
-
-                  <p style={{ fontSize: '1.35rem', lineHeight: 1.6, color: 'white', fontWeight: 500, fontStyle: 'italic' }}>
+                  <p style={{ color: 'white', marginBottom: '1rem', fontStyle: 'italic', lineHeight: 1.5 }}>
                     "{review.content}"
                   </p>
-                  
-                  <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', textAlign: 'right' }}>
-                    Verified Experience • {new Date(review.created_at).toLocaleDateString()}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                    <img 
+                      src={review.profile?.avatar_url || `https://ui-avatars.com/api/?name=${review.profile?.full_name || 'User'}&background=6366f1&color=fff`} 
+                      alt="" 
+                      style={{ width: '32px', height: '32px', borderRadius: '50%' }}
+                    />
+                    <div>
+                      <p style={{ fontWeight: 700, fontSize: '0.8rem' }}>{review.profile?.full_name}</p>
+                      <p style={{ fontSize: '0.7rem', color: 'var(--primary)', fontWeight: 800, textTransform: 'uppercase' }}>{review.profile?.role}</p>
+                    </div>
                   </div>
                 </div>
               ))
             ) : (
-              <div className="glass-card" style={{ textAlign: 'center', padding: '4rem', borderStyle: 'dashed' }}>
-                <p style={{ color: 'var(--text-muted)', fontSize: '1.1rem' }}>✨ Join over 5,000+ users getting expert IT support on ITSup</p>
+              <div style={{ color: 'var(--text-muted)', fontSize: '0.9rem', fontStyle: 'italic' }}>
+                Join our community of satisfied users...
               </div>
             )}
           </div>
-        </div>
-      </section>
 
-      {/* Hero Section */}
-      <section style={{ 
-        padding: '12rem 0 8rem 0', 
-        background: 'radial-gradient(circle at 50% -20%, rgba(99, 102, 241, 0.25), transparent 50%), radial-gradient(circle at 100% 50%, rgba(165, 180, 252, 0.08), transparent 40%)',
-        textAlign: 'center',
-        position: 'relative',
-        overflow: 'hidden'
-      }}>
-        <div className="container" style={{ position: 'relative', zIndex: 2 }}>
-          <div className="badge badge-open animate-fade-in" style={{ marginBottom: '2.5rem', display: 'inline-block' }}>
-            ✨ {user ? `Welcome back, ${profile?.full_name || 'Partner'}` : 'The Future of IT Support is Here'}
-          </div>
-          <h2 style={{ 
-            fontSize: '5.5rem', 
-            fontWeight: 900, 
-            lineHeight: 1.1, 
-            marginBottom: '3rem', 
-            letterSpacing: '-4px',
-            color: 'white'
-          }}>
-            {user ? 'Ready to solve your' : 'Elite IT Talent,'}<br />
-            <span style={{ background: 'linear-gradient(to right, #6366f1, #a5b4fc, #818cf8)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
-              {user ? 'next technical hurdle?' : 'Secured by Escrow.'}
-            </span>
-          </h2>
-          <p style={{ 
-            color: 'var(--text-muted)', 
-            fontSize: '1.4rem', 
-            maxWidth: '850px', 
-            margin: '0 auto 5rem auto',
-            lineHeight: 1.6 
-          }}>
-            {user 
-              ? 'Access your dedicated workspace, track active tickets, and manage secure escrow payments. All in one professional environment.'
-              : 'Connect with certified IT professionals for hardware repair, software setup, and network security. Payments are held in secure escrow and only released when the job is perfectly done.'}
-          </p>
-          <div style={{ display: 'flex', gap: '1.5rem', justifyContent: 'center' }}>
-            <Link href={user ? "/portal" : "/signup"} className="btn-primary" style={{ padding: '1.25rem 3.5rem', fontSize: '1.1rem' }}>
-              {user ? 'Post New Ticket' : 'Create a Ticket'}
-            </Link>
-            <Link href={user ? (profile?.role === 'OFFICER' ? '/officer' : '/signup') : "/signup"} style={{ 
-              padding: '1.25rem 3.5rem', 
-              fontSize: '1.1rem', 
-              borderRadius: '0.5rem', 
-              border: '1px solid var(--primary)',
-              background: 'transparent',
-              color: 'var(--primary)',
-              fontWeight: 600
+          {/* Right Side: Hero Content */}
+          <div style={{ flex: 1, textAlign: 'left' }}>
+            <div className="badge badge-open animate-fade-in" style={{ marginBottom: '2.5rem', display: 'inline-block' }}>
+              ✨ {user ? `Welcome back, ${profile?.full_name || 'Partner'}` : 'The Future of IT Support is Here'}
+            </div>
+            <h2 style={{ 
+              fontSize: '4.5rem', 
+              fontWeight: 900, 
+              lineHeight: 1.1, 
+              marginBottom: '2.5rem', 
+              letterSpacing: '-3px',
+              color: 'white'
             }}>
-              {user ? 'Browse Available Tickets' : 'Work & Earn Money'}
-            </Link>
+              {user ? 'Ready to solve your' : 'Elite IT Talent,'}<br />
+              <span style={{ background: 'linear-gradient(to right, #6366f1, #a5b4fc, #818cf8)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
+                {user ? 'next technical hurdle?' : 'Secured by Escrow.'}
+              </span>
+            </h2>
+            <p style={{ 
+              color: 'var(--text-muted)', 
+              fontSize: '1.25rem', 
+              maxWidth: '700px', 
+              marginBottom: '4rem',
+              lineHeight: 1.6 
+            }}>
+              {user 
+                ? 'Access your dedicated workspace, track active tickets, and manage secure escrow payments. All in one professional environment.'
+                : 'Connect with certified IT professionals for hardware repair, software setup, and network security. Payments are held in secure escrow and only released when the job is perfectly done.'}
+            </p>
+            <div style={{ display: 'flex', gap: '1.5rem' }}>
+              <Link href={user ? "/portal" : "/signup"} className="btn-primary" style={{ padding: '1.25rem 3.5rem', fontSize: '1.1rem' }}>
+                {user ? 'Post New Ticket' : 'Create a Ticket'}
+              </Link>
+              <Link href={user ? (profile?.role === 'OFFICER' ? '/officer' : '/signup') : "/signup"} style={{ 
+                padding: '1.25rem 3.5rem', 
+                fontSize: '1.1rem', 
+                borderRadius: '0.5rem', 
+                border: '1px solid var(--primary)',
+                background: 'transparent',
+                color: 'var(--primary)',
+                fontWeight: 600
+              }}>
+                {user ? 'Browse Available Tickets' : 'Work & Earn Money'}
+              </Link>
+            </div>
           </div>
         </div>
       </section>
