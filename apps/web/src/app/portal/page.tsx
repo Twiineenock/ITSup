@@ -10,6 +10,7 @@ export default function UserPortal() {
   const [tickets, setTickets] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
+  const [toast, setToast] = useState<string | null>(null);
 
   async function fetchTickets() {
     const { data: { user } } = await supabase.auth.getUser();
@@ -25,6 +26,38 @@ export default function UserPortal() {
     setLoading(false);
   }
 
+  const hireOfficer = async (ticketId: string, officerId: string) => {
+    const { error } = await supabase
+      .from('tickets')
+      .update({ 
+        status: 'ASSIGNED',
+        officer_id: officerId 
+      })
+      .eq('id', ticketId);
+
+    if (!error) {
+      showToast("Officer hired successfully! They will begin work shortly.");
+      fetchTickets();
+    }
+  };
+
+  const verifyTicket = async (ticketId: string) => {
+    const { error } = await supabase
+      .from('tickets')
+      .update({ status: 'COMPLETED' })
+      .eq('id', ticketId);
+
+    if (!error) {
+      showToast("Ticket verified and completed! Thank you.");
+      fetchTickets();
+    }
+  };
+
+  const showToast = (msg: string) => {
+    setToast(msg);
+    setTimeout(() => setToast(null), 4000);
+  };
+
   useEffect(() => {
     fetchTickets();
   }, []);
@@ -32,6 +65,12 @@ export default function UserPortal() {
   return (
     <main style={{ minHeight: '100vh', background: 'var(--bg)', color: 'var(--text)', display: 'flex', flexDirection: 'column' }}>
       <Navbar />
+      
+      {toast && (
+        <div style={{ position: 'fixed', bottom: '2rem', right: '2rem', background: 'var(--primary)', color: 'white', padding: '1rem 2rem', borderRadius: '0.5rem', boxShadow: '0 10px 25px rgba(0,0,0,0.3)', zIndex: 2000 }} className="animate-slide-up">
+          {toast}
+        </div>
+      )}
       <div className="container" style={{ flex: 1, padding: '4rem 2rem' }}>
         <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '3rem' }}>
           <div>
@@ -101,26 +140,39 @@ export default function UserPortal() {
                             />
                             <div style={{ flex: 1 }}>
                               <p style={{ fontSize: '0.9rem', fontWeight: 600 }}>{offer.officer?.full_name}</p>
-                              <a 
-                                href={`https://wa.me/${offer.officer?.phone_number}?text=Hi, I am interested in your offer for my ticket: ${ticket.title}`} 
-                                target="_blank" 
-                                rel="noopener noreferrer" 
-                                style={{ 
-                                  display: 'inline-flex', 
-                                  alignItems: 'center', 
-                                  gap: '0.4rem',
-                                  padding: '0.4rem 0.8rem',
-                                  background: '#25D366',
-                                  color: 'white',
-                                  borderRadius: '0.4rem',
-                                  fontSize: '0.75rem',
-                                  fontWeight: 700,
-                                  marginTop: '0.5rem',
-                                  textDecoration: 'none'
-                                }}
-                              >
-                                Chat on WhatsApp
-                              </a>
+                              <div style={{ display: 'flex', gap: '0.5rem' }}>
+                                <a 
+                                  href={`https://wa.me/${offer.officer?.phone_number}?text=Hi, I am interested in your offer for my ticket: ${ticket.title}`} 
+                                  target="_blank" 
+                                  rel="noopener noreferrer" 
+                                  style={{ 
+                                    display: 'inline-flex', 
+                                    alignItems: 'center', 
+                                    gap: '0.4rem',
+                                    padding: '0.4rem 0.8rem',
+                                    background: '#25D366',
+                                    color: 'white',
+                                    borderRadius: '0.4rem',
+                                    fontSize: '0.75rem',
+                                    fontWeight: 700,
+                                    marginTop: '0.5rem',
+                                    textDecoration: 'none'
+                                  }}
+                                >
+                                  Chat
+                                </a>
+                                <button 
+                                  onClick={() => hireOfficer(ticket.id, offer.officer_id)}
+                                  className="btn-primary"
+                                  style={{ 
+                                    padding: '0.4rem 0.8rem',
+                                    fontSize: '0.75rem',
+                                    marginTop: '0.5rem'
+                                  }}
+                                >
+                                  Hire
+                                </button>
+                              </div>
                             </div>
                           </div>
                         </div>
@@ -132,18 +184,43 @@ export default function UserPortal() {
                   </div>
                 )}
 
-                {ticket.officer && (
-                  <div style={{ padding: '1rem', background: 'rgba(255,255,255,0.03)', borderRadius: '0.5rem', border: '1px solid var(--border)', display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                    <img 
-                      src={ticket.officer?.avatar_url || 'https://ui-avatars.com/api/?name=' + ticket.officer?.full_name} 
-                      alt="" 
-                      style={{ width: '40px', height: '40px', borderRadius: '50%', objectFit: 'cover' }}
-                    />
-                    <div style={{ flex: 1 }}>
-                      <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Assigned Officer</p>
-                      <p style={{ fontWeight: 600 }}>{ticket.officer.full_name}</p>
-                      <a href={`https://wa.me/${ticket.officer.phone_number}`} target="_blank" rel="noopener noreferrer" style={{ color: 'var(--primary)', fontSize: '0.8rem' }}>WhatsApp Chat</a>
+                {(ticket.status === 'ASSIGNED' || ticket.status === 'RESOLVED' || ticket.status === 'COMPLETED') && ticket.officer && (
+                  <div style={{ padding: '1rem', background: 'rgba(99, 102, 241, 0.05)', borderRadius: '0.5rem', border: '1px solid rgba(99, 102, 241, 0.2)', marginTop: '1rem' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1rem' }}>
+                      <img 
+                        src={ticket.officer?.avatar_url || 'https://ui-avatars.com/api/?name=' + ticket.officer?.full_name} 
+                        alt="" 
+                        style={{ width: '40px', height: '40px', borderRadius: '50%', objectFit: 'cover' }}
+                      />
+                      <div style={{ flex: 1 }}>
+                        <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Hired Officer</p>
+                        <p style={{ fontWeight: 600, fontSize: '0.9rem' }}>{ticket.officer.full_name}</p>
+                      </div>
+                      <a href={`https://wa.me/${ticket.officer.phone_number}`} target="_blank" rel="noopener noreferrer" style={{ padding: '0.4rem 0.8rem', background: '#25D366', color: 'white', borderRadius: '0.4rem', textDecoration: 'none', fontSize: '0.75rem', fontWeight: 700 }}>WhatsApp</a>
                     </div>
+
+                    {ticket.status === 'RESOLVED' && (
+                      <div style={{ borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: '1rem' }}>
+                        <p style={{ color: 'var(--success)', fontWeight: 700, fontSize: '0.85rem', marginBottom: '0.5rem' }}>✅ Work Completed</p>
+                        {ticket.resolved_message && <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginBottom: '1rem' }}>"{ticket.resolved_message}"</p>}
+                        {ticket.resolved_image_url && (
+                          <div style={{ marginBottom: '1rem', borderRadius: '0.4rem', overflow: 'hidden' }}>
+                            <img src={ticket.resolved_image_url} alt="Resolution" style={{ width: '100%', height: '100px', objectFit: 'cover' }} />
+                          </div>
+                        )}
+                        <button 
+                          onClick={() => verifyTicket(ticket.id)}
+                          className="btn-primary" 
+                          style={{ width: '100%', padding: '0.6rem' }}
+                        >
+                          Verify & Mark as Complete
+                        </button>
+                      </div>
+                    )}
+
+                    {ticket.status === 'COMPLETED' && (
+                      <p style={{ color: 'var(--success)', fontWeight: 800, textAlign: 'center', fontSize: '0.9rem' }}>🏁 Job Successfully Completed</p>
+                    )}
                   </div>
                 )}
                 

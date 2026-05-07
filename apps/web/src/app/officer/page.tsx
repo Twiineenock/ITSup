@@ -7,9 +7,11 @@ import Footer from '@/components/Footer';
 
 export default function OfficerDashboard() {
   const [tickets, setTickets] = useState<any[]>([]);
+  const [myActiveTickets, setMyActiveTickets] = useState<any[]>([]);
   const [myOffers, setMyOffers] = useState<any[]>([]);
   const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [toast, setToast] = useState<string | null>(null);
 
   async function fetchInitialData() {
     const { data: { user } } = await supabase.auth.getUser();
@@ -18,7 +20,8 @@ export default function OfficerDashboard() {
     if (user) {
       await Promise.all([
         fetchTickets(user.id),
-        fetchMyOffers(user.id)
+        fetchMyOffers(user.id),
+        fetchActiveTickets(user.id)
       ]);
     } else {
       setLoading(false);
@@ -44,6 +47,21 @@ export default function OfficerDashboard() {
     setLoading(false);
   }
 
+  async function fetchActiveTickets(uid: string) {
+    const { data } = await supabase
+      .from('tickets')
+      .select('*, customer:profiles!user_id(full_name, phone_number, avatar_url)')
+      .eq('officer_id', uid)
+      .in('status', ['ASSIGNED', 'RESOLVED', 'COMPLETED'])
+      .order('updated_at', { ascending: false });
+    setMyActiveTickets(data || []);
+  }
+
+  const showToast = (msg: string) => {
+    setToast(msg);
+    setTimeout(() => setToast(null), 4000);
+  };
+
   useEffect(() => {
     fetchInitialData();
   }, []);
@@ -60,7 +78,38 @@ export default function OfficerDashboard() {
       }]);
     
     if (!error) {
-      alert("🚀 Interest expressed! The customer has been notified and may contact you on WhatsApp.");
+      showToast("🚀 Interest expressed! The customer has been notified.");
+      fetchInitialData();
+    }
+  }
+
+  async function resolveTicket(e: React.FormEvent<HTMLFormElement>, ticketId: string) {
+    e.preventDefault();
+    const formData = new FormData(e.currentTarget);
+    const message = formData.get('message') as string;
+    const file = (formData.get('image') as File);
+    let resolved_image_url = null;
+
+    if (file && file.size > 0) {
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${Math.random()}.${fileExt}`;
+      const filePath = `resolutions/${ticketId}/${fileName}`;
+      await supabase.storage.from('ticket-images').upload(filePath, file);
+      const { data: { publicUrl } } = supabase.storage.from('ticket-images').getPublicUrl(filePath);
+      resolved_image_url = publicUrl;
+    }
+
+    const { error } = await supabase
+      .from('tickets')
+      .update({ 
+        status: 'RESOLVED',
+        resolved_message: message,
+        resolved_image_url: resolved_image_url
+      })
+      .eq('id', ticketId);
+
+    if (!error) {
+      showToast("Ticket marked as resolved! Awaiting customer verification.");
       fetchInitialData();
     }
   }
@@ -68,89 +117,158 @@ export default function OfficerDashboard() {
   return (
     <main style={{ minHeight: '100vh', background: 'var(--bg)', color: 'var(--text)', display: 'flex', flexDirection: 'column' }}>
       <Navbar />
+      
+      {toast && (
+        <div style={{ position: 'fixed', bottom: '2rem', right: '2rem', background: 'var(--primary)', color: 'white', padding: '1rem 2rem', borderRadius: '0.5rem', boxShadow: '0 10px 25px rgba(0,0,0,0.3)', zIndex: 2000 }} className="animate-slide-up">
+          {toast}
+        </div>
+      )}
+
       <div className="container" style={{ flex: 1, padding: '4rem 2rem' }}>
         <header style={{ marginBottom: '4rem' }}>
-          <h1 style={{ fontSize: '2.5rem', fontWeight: 800 }}>Officer Opportunity Hub</h1>
-          <p style={{ color: 'var(--text-muted)', fontSize: '1.1rem' }}>Find active support tickets, propose your services, and connect via WhatsApp.</p>
+          <h1 style={{ fontSize: '2.5rem', fontWeight: 800 }}>Officer Command Center</h1>
+          <p style={{ color: 'var(--text-muted)', fontSize: '1.1rem' }}>Manage your active work and browse new opportunities.</p>
         </header>
 
         {loading ? (
           <p>Connecting to marketplace...</p>
         ) : (
-          <div style={{ maxWidth: '900px', margin: '0 auto' }}>
-            <h3 style={{ marginBottom: '2rem', display: 'flex', alignItems: 'center', gap: '0.75rem', fontSize: '1.5rem' }}>
-              <span style={{ width: '12px', height: '12px', background: 'var(--success)', borderRadius: '50%', boxShadow: '0 0 10px var(--success)' }}></span>
-              Live Ticket Marketplace
-            </h3>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(400px, 1fr))', gap: '2rem' }}>
-              {tickets.map(ticket => {
-                const hasOffered = myOffers.some(o => o.ticket_id === ticket.id);
-                return (
-                  <div key={ticket.id} className="glass-card animate-fade-in">
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '5rem' }}>
+            
+            {/* My Active Work Section */}
+            <section>
+              <h3 style={{ marginBottom: '2rem', display: 'flex', alignItems: 'center', gap: '0.75rem', fontSize: '1.5rem', color: 'var(--primary)' }}>
+                <span style={{ width: '12px', height: '12px', background: 'var(--primary)', borderRadius: '50%', boxShadow: '0 0 10px var(--primary)' }}></span>
+                My Active Tickets ({myActiveTickets.length})
+              </h3>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(400px, 1fr))', gap: '2rem' }}>
+                {myActiveTickets.map(ticket => (
+                  <div key={ticket.id} className="glass-card" style={{ border: '1px solid var(--primary)', background: 'rgba(99, 102, 241, 0.05)' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '1.5rem' }}>
-                      <span className="badge badge-open">LIVE TICKET</span>
+                      <span className={`badge badge-${ticket.status.toLowerCase()}`}>{ticket.status}</span>
+                      <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>ID: {ticket.id.slice(0,8)}</p>
                     </div>
 
-                    {/* Customer Info */}
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1.5rem', padding: '1rem', background: 'rgba(255,255,255,0.02)', borderRadius: '0.5rem', border: '1px solid rgba(255,255,255,0.05)' }}>
-                      <img 
-                        src={ticket.customer?.avatar_url || 'https://ui-avatars.com/api/?name=' + ticket.customer?.full_name} 
-                        alt="" 
-                        style={{ width: '40px', height: '40px', borderRadius: '50%', objectFit: 'cover' }}
-                      />
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1.5rem' }}>
+                      <img src={ticket.customer?.avatar_url || 'https://ui-avatars.com/api/?name=' + ticket.customer?.full_name} style={{ width: '40px', height: '40px', borderRadius: '50%' }} />
                       <div style={{ flex: 1 }}>
-                        <p style={{ fontSize: '0.9rem', fontWeight: 600 }}>{ticket.customer?.full_name}</p>
-                        <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Location: Remote/On-site</p>
+                        <p style={{ fontWeight: 600 }}>{ticket.customer?.full_name}</p>
+                        <a href={`https://wa.me/${ticket.customer?.phone_number}`} target="_blank" rel="noopener noreferrer" style={{ fontSize: '0.8rem', color: '#25D366', textDecoration: 'none', fontWeight: 700 }}>Chat on WhatsApp</a>
                       </div>
-                      <a 
-                        href={`https://wa.me/${ticket.customer?.phone_number}?text=Hi ${ticket.customer?.full_name}, I saw your ticket "${ticket.title}" on ITSup and I am interested in helping you.`} 
-                        target="_blank" 
-                        rel="noopener noreferrer" 
-                        style={{ 
-                          padding: '0.5rem 1rem', 
-                          background: '#25D366', 
-                          color: 'white', 
-                          borderRadius: '0.5rem', 
-                          fontSize: '0.8rem', 
-                          textDecoration: 'none', 
-                          fontWeight: 700 
-                        }}
-                      >
-                        WhatsApp
-                      </a>
                     </div>
 
-                    <h4 style={{ fontSize: '1.3rem', marginBottom: '0.75rem' }}>{ticket.title}</h4>
-                    <p style={{ color: 'var(--text-muted)', fontSize: '0.95rem', marginBottom: '1.5rem', lineHeight: 1.6, height: '4.8rem', overflow: 'hidden' }}>{ticket.description}</p>
-                    
-                    {ticket.image_url && (
-                      <div style={{ marginBottom: '1.5rem', borderRadius: '0.5rem', overflow: 'hidden', border: '1px solid var(--border)' }}>
-                        <img src={ticket.image_url} alt="Issue evidence" style={{ width: '100%', height: '200px', objectFit: 'cover' }} />
+                    <h4 style={{ marginBottom: '0.5rem' }}>{ticket.title}</h4>
+                    <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', marginBottom: '1.5rem' }}>{ticket.description}</p>
+
+                    {ticket.status === 'ASSIGNED' && (
+                      <form onSubmit={(e) => resolveTicket(e, ticket.id)} style={{ borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: '1.5rem' }}>
+                        <label style={{ display: 'block', fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '0.5rem' }}>Resolution Note</label>
+                        <textarea name="message" required placeholder="Describe what you fixed..." style={{ width: '100%', background: 'rgba(0,0,0,0.2)', border: '1px solid var(--border)', padding: '0.75rem', borderRadius: '0.4rem', color: 'white', fontSize: '0.9rem', marginBottom: '1rem', resize: 'none' }} />
+                        
+                        <label style={{ display: 'block', fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '0.5rem' }}>Proof of Work (Optional Image)</label>
+                        <input type="file" name="image" accept="image/*" capture="environment" style={{ fontSize: '0.8rem', marginBottom: '1rem', color: 'var(--text-muted)' }} />
+                        
+                        <button type="submit" className="btn-primary" style={{ width: '100%', padding: '0.75rem' }}>Mark as Resolved</button>
+                      </form>
+                    )}
+
+                    {ticket.status === 'RESOLVED' && (
+                      <div style={{ background: 'rgba(16, 185, 129, 0.1)', padding: '1rem', borderRadius: '0.4rem', textAlign: 'center', color: 'var(--success)', fontWeight: 700 }}>
+                        Awaiting Customer Verification
                       </div>
                     )}
-                    
-                    {hasOffered ? (
-                      <div style={{ background: 'rgba(99, 102, 241, 0.1)', padding: '1rem', borderRadius: '0.5rem', textAlign: 'center', color: 'var(--primary)', fontWeight: 700, border: '1px solid var(--primary)' }}>
-                        ✅ Interest Expressed
+
+                    {ticket.status === 'COMPLETED' && (
+                      <div style={{ background: 'rgba(99, 102, 241, 0.1)', padding: '1rem', borderRadius: '0.4rem', textAlign: 'center', color: 'var(--primary)', fontWeight: 700 }}>
+                        Completed & Verified 🏁
                       </div>
-                    ) : (
-                      <button 
-                        onClick={() => expressInterest(ticket.id, 0)} 
-                        className="btn-primary" 
-                        style={{ width: '100%', padding: '0.8rem' }}
-                      >
-                        Express Interest
-                      </button>
                     )}
                   </div>
-                );
-              })}
-              {tickets.length === 0 && (
-                <div className="glass-card" style={{ gridColumn: '1 / -1', textAlign: 'center', padding: '5rem', borderStyle: 'dashed' }}>
-                  <p style={{ color: 'var(--text-muted)', fontSize: '1.2rem' }}>The marketplace is currently quiet. New tickets will appear here once customers pay the listing fee!</p>
-                </div>
-              )}
-            </div>
+                ))}
+                {myActiveTickets.length === 0 && (
+                  <div style={{ gridColumn: '1 / -1', padding: '3rem', border: '1px dashed var(--border)', borderRadius: '1rem', textAlign: 'center', color: 'var(--text-muted)' }}>
+                    No active tickets. Hire requests from customers will appear here!
+                  </div>
+                )}
+              </div>
+            </section>
+
+            {/* Marketplace Section */}
+            <section>
+              <h3 style={{ marginBottom: '2rem', display: 'flex', alignItems: 'center', gap: '0.75rem', fontSize: '1.5rem' }}>
+                <span style={{ width: '12px', height: '12px', background: 'var(--success)', borderRadius: '50%', boxShadow: '0 0 10px var(--success)' }}></span>
+                Live Ticket Marketplace
+              </h3>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(400px, 1fr))', gap: '2rem' }}>
+                {tickets.map(ticket => {
+                  const hasOffered = myOffers.some(o => o.ticket_id === ticket.id);
+                  return (
+                    <div key={ticket.id} className="glass-card animate-fade-in">
+                      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '1.5rem' }}>
+                        <span className="badge badge-open">LIVE TICKET</span>
+                      </div>
+  
+                      {/* Customer Info */}
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1.5rem', padding: '1rem', background: 'rgba(255,255,255,0.02)', borderRadius: '0.5rem', border: '1px solid rgba(255,255,255,0.05)' }}>
+                        <img 
+                          src={ticket.customer?.avatar_url || 'https://ui-avatars.com/api/?name=' + ticket.customer?.full_name} 
+                          alt="" 
+                          style={{ width: '40px', height: '40px', borderRadius: '50%', objectFit: 'cover' }}
+                        />
+                        <div style={{ flex: 1 }}>
+                          <p style={{ fontSize: '0.9rem', fontWeight: 600 }}>{ticket.customer?.full_name}</p>
+                          <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Location: Remote/On-site</p>
+                        </div>
+                        <a 
+                          href={`https://wa.me/${ticket.customer?.phone_number}?text=Hi ${ticket.customer?.full_name}, I saw your ticket "${ticket.title}" on ITSup and I am interested in helping you.`} 
+                          target="_blank" 
+                          rel="noopener noreferrer" 
+                          style={{ 
+                            padding: '0.5rem 1rem', 
+                            background: '#25D366', 
+                            color: 'white', 
+                            borderRadius: '0.5rem', 
+                            fontSize: '0.8rem', 
+                            textDecoration: 'none', 
+                            fontWeight: 700 
+                          }}
+                        >
+                          WhatsApp
+                        </a>
+                      </div>
+  
+                      <h4 style={{ fontSize: '1.3rem', marginBottom: '0.75rem' }}>{ticket.title}</h4>
+                      <p style={{ color: 'var(--text-muted)', fontSize: '0.95rem', marginBottom: '1.5rem', lineHeight: 1.6, height: '4.8rem', overflow: 'hidden' }}>{ticket.description}</p>
+                      
+                      {ticket.image_url && (
+                        <div style={{ marginBottom: '1.5rem', borderRadius: '0.5rem', overflow: 'hidden', border: '1px solid var(--border)' }}>
+                          <img src={ticket.image_url} alt="Issue evidence" style={{ width: '100%', height: '200px', objectFit: 'cover' }} />
+                        </div>
+                      )}
+                      
+                      {hasOffered ? (
+                        <div style={{ background: 'rgba(99, 102, 241, 0.1)', padding: '1rem', borderRadius: '0.5rem', textAlign: 'center', color: 'var(--primary)', fontWeight: 700, border: '1px solid var(--primary)' }}>
+                          ✅ Interest Expressed
+                        </div>
+                      ) : (
+                        <button 
+                          onClick={() => expressInterest(ticket.id, 0)} 
+                          className="btn-primary" 
+                          style={{ width: '100%', padding: '0.8rem' }}
+                        >
+                          Express Interest
+                        </button>
+                      )}
+                    </div>
+                  );
+                })}
+                {tickets.length === 0 && (
+                  <div className="glass-card" style={{ gridColumn: '1 / -1', textAlign: 'center', padding: '5rem', borderStyle: 'dashed' }}>
+                    <p style={{ color: 'var(--text-muted)', fontSize: '1.2rem' }}>The marketplace is currently quiet. New tickets will appear here once customers pay the listing fee!</p>
+                  </div>
+                )}
+              </div>
+            </section>
           </div>
         )}
       </div>
