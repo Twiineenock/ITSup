@@ -32,9 +32,9 @@ export default function Footer() {
           <div>
             <h4 style={{ color: 'var(--text)', fontSize: '1rem', fontWeight: 700, marginBottom: '1.5rem' }}>Company</h4>
             <ul style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '0.75rem', fontSize: '0.9rem' }}>
-              <li><Link href="#">About Us</Link></li>
-              <li><Link href="#">Careers</Link></li>
-              <li><Link href="#">Contact</Link></li>
+              <li><Link href="/about">About ITSup</Link></li>
+              <li><a href="https://wa.me/256771250497" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--success)', fontWeight: 700 }}>WhatsApp Support</a></li>
+              <li><Link href="/#services">Our Services</Link></li>
             </ul>
           </div>
           

@@ -250,10 +250,13 @@ export default function UserPortal() {
               >
                 ✕
               </button>
-              <TicketForm onSuccess={() => {
-                setShowForm(false);
-                fetchTickets();
-              }} />
+              <TicketForm 
+                onSuccess={() => {
+                  setShowForm(false);
+                  fetchTickets();
+                }} 
+                onCancel={() => setShowForm(false)}
+              />
             </div>
           </div>
         )}

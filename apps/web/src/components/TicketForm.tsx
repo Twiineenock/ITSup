@@ -5,9 +5,10 @@ import { supabase } from '@itsup/database';
 
 interface TicketFormProps {
   onSuccess?: () => void;
+  onCancel?: () => void;
 }
 
-export default function TicketForm({ onSuccess }: TicketFormProps) {
+export default function TicketForm({ onSuccess, onCancel }: TicketFormProps) {
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -191,9 +192,25 @@ export default function TicketForm({ onSuccess }: TicketFormProps) {
           </div>
         </div>
 
-        <button type="submit" disabled={loading} className="btn-primary" style={{ marginTop: '1rem' }}>
-          {loading ? 'Processing...' : 'Pay 5,000 UGX & Publish Ticket'}
-        </button>
+        <div style={{ display: 'flex', gap: '1rem', marginTop: '1rem' }}>
+          {onCancel && (
+            <button 
+              type="button" 
+              onClick={onCancel}
+              style={{ flex: 1, padding: '1rem', background: 'rgba(255,255,255,0.05)', border: 'none', color: 'white', borderRadius: '0.5rem', fontWeight: 600 }}
+            >
+              Cancel
+            </button>
+          )}
+          <button 
+            type="submit" 
+            disabled={loading} 
+            className="btn-primary" 
+            style={{ flex: 2, padding: '1rem' }}
+          >
+            {loading ? 'Processing...' : 'Pay 5,000 UGX & Publish Ticket'}
+          </button>
+        </div>
       </form>
     </div>
   );
