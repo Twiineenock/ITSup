@@ -411,7 +411,7 @@ export default function UserPortal() {
                     <button 
                       onClick={() => {
                         // Re-trigger payment for this specific ticket
-                        const user = supabase.auth.getUser().then(({data: {user}}) => {
+                        supabase.auth.getUser().then(({data: {user}}: any) => {
                           if (!user) return;
                           window.FlutterwaveCheckout({
                             public_key: process.env.NEXT_PUBLIC_FLW_PUBLIC_KEY || "FLWPUBK_TEST-efddd3bb2150d48b7cda2154514e8d2f-X",
