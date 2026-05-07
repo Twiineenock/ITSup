@@ -32,10 +32,7 @@ export default function Navbar() {
   };
 
   const getHomeLink = () => {
-    if (!profile) return '/';
-    if (profile.role === 'ADMIN') return '/admin';
-    if (profile.role === 'OFFICER') return '/officer';
-    return '/portal';
+    return '/';
   };
 
   return (
