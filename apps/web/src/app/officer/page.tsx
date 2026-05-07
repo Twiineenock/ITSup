@@ -144,6 +144,8 @@ export default function OfficerDashboard() {
       showToast("Remote access request sent to the customer.");
       fetchInitialData();
     }
+  }
+
   const submitSystemReview = async () => {
     if (!systemReview.trim()) return;
     const { data: { user } } = await supabase.auth.getUser();
