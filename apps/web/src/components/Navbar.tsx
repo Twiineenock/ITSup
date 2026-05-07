@@ -49,13 +49,12 @@ export default function Navbar() {
       zIndex: 100 
     }}>
       <div className="container" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <Link href={getHomeLink()} style={{ fontSize: '1.75rem', fontWeight: 900, letterSpacing: '-1.5px', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+        <Link href="/" style={{ fontSize: '1.75rem', fontWeight: 900, letterSpacing: '-1.5px', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
           <div style={{ width: '32px', height: '32px', background: 'linear-gradient(135deg, var(--primary), var(--accent))', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontSize: '1.2rem' }}>S</div>
           <span>IT<span style={{ color: 'var(--primary)' }}>Sup</span></span>
         </Link>
         
         <div style={{ display: 'flex', gap: '2.5rem', alignItems: 'center' }}>
-          <Link href={getHomeLink()} style={{ color: 'var(--text-muted)', fontSize: '0.9rem', fontWeight: 500 }}>Home</Link>
           <Link href="/#services" style={{ color: 'var(--text-muted)', fontSize: '0.9rem', fontWeight: 500 }}>Services</Link>
           <Link href="/#how-it-works" style={{ color: 'var(--text-muted)', fontSize: '0.9rem', fontWeight: 500 }}>How it Works</Link>
           

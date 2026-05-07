@@ -133,16 +133,16 @@ export default function Home() {
       <section id="how-it-works" style={{ padding: '10rem 0' }}>
         <div className="container">
           <div style={{ textAlign: 'center', marginBottom: '8rem' }}>
-            <h3 style={{ fontSize: '3.5rem', fontWeight: 800, marginBottom: '2rem' }}>The ITSup Trust Flow</h3>
-            <p style={{ color: 'var(--text-muted)', fontSize: '1.3rem' }}>Built on transparency, security, and verified expertise.</p>
+            <h3 style={{ fontSize: '3.5rem', fontWeight: 800, marginBottom: '2rem' }}>The ITSup Platform Flow</h3>
+            <p style={{ color: 'var(--text-muted)', fontSize: '1.3rem' }}>Simple, transparent, and direct connection to expertise.</p>
           </div>
 
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '3rem' }}>
             {[
-              { step: '01', title: 'Ticket Posting', desc: 'Define your technical needs and set a fair market budget.' },
-              { step: '02', title: 'Escrow Funding', desc: 'Securely deposit funds into ITSup Escrow to initiate the task.' },
-              { step: '03', title: 'Expert Resolution', desc: 'A verified IT Officer delivers a high-quality solution.' },
-              { step: '04', title: 'Fund Release', desc: 'Approve the work and release payment to the professional.' }
+              { step: '01', title: 'Ticket Creation', desc: 'Describe your technical issue and set an estimated budget.' },
+              { step: '02', title: 'Listing Fee', desc: 'Pay a small 5000 UGX fee to publish your ticket to our marketplace.' },
+              { step: '03', title: 'Expert Bid', desc: 'Verified IT Officers browse your ticket and express interest.' },
+              { step: '04', title: 'Direct Solution', desc: 'Connect via WhatsApp, negotiate, and get your issue solved.' }
             ].map((item, i) => (
               <div key={i} style={{ textAlign: 'center' }}>
                 <div style={{ 
@@ -169,38 +169,56 @@ export default function Home() {
         </div>
       </section>
 
-      {/* High Conversion CTA Sections */}
-      <section style={{ padding: '10rem 0', background: 'linear-gradient(to bottom, var(--surface), var(--bg))' }}>
-        <div className="container">
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '4rem' }}>
-            {/* Customer CTA */}
-            <div className="glass-card" style={{ padding: '5rem', textAlign: 'center', position: 'relative', overflow: 'hidden' }}>
-              <div style={{ position: 'absolute', top: 0, right: 0, padding: '1rem', fontSize: '0.8rem', background: 'var(--primary)', color: 'white', fontWeight: 700, borderRadius: '0 0 0 0.75rem' }}>CUSTOMER</div>
-              <h3 style={{ fontSize: '2.5rem', fontWeight: 800, marginBottom: '2rem' }}>Need Technical Support?</h3>
-              <p style={{ color: 'var(--text-muted)', marginBottom: '3.5rem', fontSize: '1.15rem', lineHeight: 1.6 }}>
-                Access our network of verified IT professionals. Secure escrow payments guarantee you only pay for results.
-              </p>
-              <Link href="/signup" className="btn-primary" style={{ padding: '1.25rem 4rem', fontSize: '1.1rem' }}>Create a Ticket Now</Link>
+      {/* High Conversion CTA Sections - Only for guests */}
+      {!user && (
+        <section style={{ padding: '10rem 0', background: 'linear-gradient(to bottom, var(--surface), var(--bg))' }}>
+          <div className="container">
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '4rem' }}>
+              {/* Customer CTA */}
+              <div className="glass-card" style={{ padding: '5rem', textAlign: 'center', position: 'relative', overflow: 'hidden' }}>
+                <div style={{ position: 'absolute', top: 0, right: 0, padding: '1rem', fontSize: '0.8rem', background: 'var(--primary)', color: 'white', fontWeight: 700, borderRadius: '0 0 0 0.75rem' }}>CUSTOMER</div>
+                <h3 style={{ fontSize: '2.5rem', fontWeight: 800, marginBottom: '2rem' }}>Need Technical Support?</h3>
+                <p style={{ color: 'var(--text-muted)', marginBottom: '3.5rem', fontSize: '1.15rem', lineHeight: 1.6 }}>
+                  Access our network of verified IT professionals. Direct WhatsApp connection ensures fast results.
+                </p>
+                <Link href="/signup" className="btn-primary" style={{ padding: '1.25rem 4rem', fontSize: '1.1rem' }}>Create a Ticket Now</Link>
+              </div>
+              
+              {/* Officer CTA */}
+              <div className="glass-card" style={{ padding: '5rem', textAlign: 'center', border: '2px solid var(--primary)', position: 'relative', overflow: 'hidden' }}>
+                <div style={{ position: 'absolute', top: 0, right: 0, padding: '1rem', fontSize: '0.8rem', background: '#22c55e', color: 'white', fontWeight: 700, borderRadius: '0 0 0 0.75rem' }}>OFFICER</div>
+                <h3 style={{ fontSize: '2.5rem', fontWeight: 800, marginBottom: '2rem' }}>Want to Earn More?</h3>
+                <p style={{ color: 'var(--text-muted)', marginBottom: '3.5rem', fontSize: '1.15rem', lineHeight: 1.6 }}>
+                  Join our community of IT Officers. Browse tickets and get paid directly for your expertise.
+                </p>
+                <Link href="/signup" className="btn-primary" style={{ padding: '1.25rem 4rem', fontSize: '1.1rem', background: '#22c55e', border: 'none' }}>Start Earning Money</Link>
+              </div>
             </div>
             
-            {/* Officer CTA */}
-            <div className="glass-card" style={{ padding: '5rem', textAlign: 'center', border: '2px solid var(--primary)', position: 'relative', overflow: 'hidden' }}>
-              <div style={{ position: 'absolute', top: 0, right: 0, padding: '1rem', fontSize: '0.8rem', background: '#22c55e', color: 'white', fontWeight: 700, borderRadius: '0 0 0 0.75rem' }}>OFFICER</div>
-              <h3 style={{ fontSize: '2.5rem', fontWeight: 800, marginBottom: '2rem' }}>Want to Earn More?</h3>
-              <p style={{ color: 'var(--text-muted)', marginBottom: '3.5rem', fontSize: '1.15rem', lineHeight: 1.6 }}>
-                Join our elite community of IT Officers. Browse global tickets and get paid securely for your expertise.
+            <div style={{ marginTop: '5rem', textAlign: 'center' }}>
+              <p style={{ color: 'var(--text-muted)', fontSize: '1rem' }}>
+                Questions? Explore our <Link href="/#how-it-works" style={{ color: 'var(--primary)', fontWeight: 600 }}>Platform Flow</Link> or <Link href="/login" style={{ color: 'white', fontWeight: 600 }}>Sign In</Link> to your account.
               </p>
-              <Link href="/signup" className="btn-primary" style={{ padding: '1.25rem 4rem', fontSize: '1.1rem', background: '#22c55e', border: 'none' }}>Start Earning Money</Link>
             </div>
           </div>
-          
-          <div style={{ marginTop: '5rem', textAlign: 'center' }}>
-            <p style={{ color: 'var(--text-muted)', fontSize: '1rem' }}>
-              Questions? Explore our <Link href="/#how-it-works" style={{ color: 'var(--primary)', fontWeight: 600 }}>Trust Flow</Link> or <Link href="/login" style={{ color: 'white', fontWeight: 600 }}>Sign In</Link> to your account.
-            </p>
+        </section>
+      )}
+
+      {user && (
+        <section style={{ padding: '6rem 0', textAlign: 'center' }}>
+          <div className="container">
+             <div className="glass-card" style={{ padding: '4rem', background: 'rgba(99, 102, 241, 0.05)', border: '1px solid rgba(99, 102, 241, 0.1)' }}>
+                <h3 style={{ fontSize: '2rem', fontWeight: 800, marginBottom: '1.5rem' }}>Your Professional Dashboard</h3>
+                <p style={{ color: 'var(--text-muted)', marginBottom: '2.5rem', fontSize: '1.1rem' }}>
+                  Manage your active sessions, track pending payments, and connect with your {profile?.role === 'OFFICER' ? 'clients' : 'officers'}.
+                </p>
+                <Link href={getDashboardLink()} className="btn-primary" style={{ padding: '1rem 3rem' }}>
+                  Go to Dashboard →
+                </Link>
+             </div>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
 
       <Footer />
     </main>
