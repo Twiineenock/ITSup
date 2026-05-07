@@ -50,64 +50,69 @@ export default function Home() {
     <main style={{ background: 'var(--bg)', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
       <Navbar />
 
-      {/* Premium Integrated Review Ticker */}
+      {/* Premium Vertical Stacking Testimonials */}
       <section style={{ 
-        padding: '1.5rem 0', 
-        background: 'rgba(99, 102, 241, 0.05)', 
+        padding: '4rem 0', 
+        background: 'linear-gradient(to bottom, rgba(99, 102, 241, 0.05), transparent)', 
         borderBottom: '1px solid rgba(99, 102, 241, 0.1)',
         position: 'relative',
-        overflow: 'hidden',
-        zIndex: 10,
-        backdropFilter: 'blur(5px)'
+        zIndex: 10
       }}>
-        <div style={{ 
-          display: 'flex', 
-          whiteSpace: 'nowrap', 
-          animation: reviews.length > 2 ? 'scroll 40s linear infinite' : 'none',
-          justifyContent: reviews.length <= 2 ? 'center' : 'flex-start',
-          gap: '4rem'
-        }}>
-          {reviews.length > 0 ? (
-            // Only loop if we have enough content to fill the screen
-            (reviews.length > 2 ? [...reviews, ...reviews] : reviews).map((review, i) => (
-              <div key={i} style={{ 
-                display: 'inline-flex', 
-                alignItems: 'center', 
-                gap: '1.5rem', 
-                padding: '0 2rem'
-              }}>
-                <div style={{ display: 'flex', gap: '4px', color: '#FBBF24', fontSize: '1.2rem' }}>
-                  {[...Array(review.rating)].map((_, i) => <span key={i}>★</span>)}
-                </div>
-                <p style={{ fontSize: '1.2rem', color: 'white', fontWeight: 600, letterSpacing: '0.5px' }}>
-                  "{review.content}"
-                </p>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', borderLeft: '1px solid rgba(255,255,255,0.1)', paddingLeft: '1.5rem' }}>
-                  <img 
-                    src={review.profile?.avatar_url || `https://ui-avatars.com/api/?name=${review.profile?.full_name || 'User'}&background=6366f1&color=fff`} 
-                    alt="" 
-                    style={{ width: '32px', height: '32px', borderRadius: '50%', border: '2px solid var(--primary)' }}
-                  />
-                  <div>
-                    <p style={{ fontWeight: 800, fontSize: '0.9rem', color: 'white' }}>{review.profile?.full_name}</p>
-                    <p style={{ fontSize: '0.7rem', color: 'var(--primary)', fontWeight: 900, textTransform: 'uppercase' }}>{review.profile?.role}</p>
+        <div className="container">
+          <div style={{ textAlign: 'center', marginBottom: '3rem' }}>
+            <h2 style={{ fontSize: '1.5rem', fontWeight: 800, color: 'var(--primary)', letterSpacing: '2px', textTransform: 'uppercase', marginBottom: '1rem' }}>User Voice</h2>
+            <p style={{ color: 'var(--text-muted)' }}>Real feedback from our professional community</p>
+          </div>
+          
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', maxWidth: '900px', margin: '0 auto' }}>
+            {reviews.length > 0 ? (
+              reviews.map((review, i) => (
+                <div key={i} className="glass-card" style={{ 
+                  padding: '2.5rem', 
+                  display: 'flex', 
+                  flexDirection: 'column', 
+                  gap: '1.5rem',
+                  border: '1px solid rgba(99, 102, 241, 0.2)',
+                  background: 'rgba(255,255,255,0.02)',
+                  position: 'relative',
+                  overflow: 'hidden'
+                }}>
+                  {/* Decorative glowing background */}
+                  <div style={{ position: 'absolute', top: '-50%', left: '-20%', width: '100%', height: '200%', background: 'radial-gradient(circle, rgba(99, 102, 241, 0.05) 0%, transparent 70%)', zIndex: -1 }}></div>
+
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '1.25rem' }}>
+                      <img 
+                        src={review.profile?.avatar_url || `https://ui-avatars.com/api/?name=${review.profile?.full_name || 'User'}&background=6366f1&color=fff`} 
+                        alt="" 
+                        style={{ width: '56px', height: '56px', borderRadius: '50%', border: '2px solid var(--primary)', padding: '2px' }}
+                      />
+                      <div>
+                        <p style={{ fontWeight: 800, fontSize: '1.1rem', color: 'white' }}>{review.profile?.full_name}</p>
+                        <p style={{ fontSize: '0.8rem', color: 'var(--primary)', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '1px' }}>{review.profile?.role}</p>
+                      </div>
+                    </div>
+                    <div style={{ display: 'flex', gap: '4px', color: '#FBBF24', fontSize: '1.2rem' }}>
+                      {[...Array(review.rating)].map((_, i) => <span key={i}>★</span>)}
+                    </div>
+                  </div>
+
+                  <p style={{ fontSize: '1.35rem', lineHeight: 1.6, color: 'white', fontWeight: 500, fontStyle: 'italic' }}>
+                    "{review.content}"
+                  </p>
+                  
+                  <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', textAlign: 'right' }}>
+                    Verified Experience • {new Date(review.created_at).toLocaleDateString()}
                   </div>
                 </div>
+              ))
+            ) : (
+              <div className="glass-card" style={{ textAlign: 'center', padding: '4rem', borderStyle: 'dashed' }}>
+                <p style={{ color: 'var(--text-muted)', fontSize: '1.1rem' }}>✨ Join over 5,000+ users getting expert IT support on ITSup</p>
               </div>
-            ))
-          ) : (
-            <div style={{ textAlign: 'center', color: 'var(--text-muted)', fontSize: '1rem', fontWeight: 700, letterSpacing: '2px' }}>
-              🚀 SECURING THE FUTURE OF IT SUPPORT WITH ESCROW PAYMENTS
-            </div>
-          )}
+            )}
+          </div>
         </div>
-
-        <style jsx>{`
-          @keyframes scroll {
-            0% { transform: translateX(0); }
-            100% { transform: translateX(-50%); }
-          }
-        `}</style>
       </section>
 
       {/* Hero Section */}
