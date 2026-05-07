@@ -50,3 +50,30 @@ CREATE TABLE ticket_messages (
 ALTER PUBLICATION supabase_realtime ADD TABLE tickets;
 ALTER PUBLICATION supabase_realtime ADD TABLE ticket_messages;
 ALTER PUBLICATION supabase_realtime ADD TABLE escrow_transactions;
+
+-- 5. RLS Policies (Row Level Security)
+-- Enable RLS on all tables
+ALTER TABLE profiles ENABLE ROW LEVEL SECURITY;
+ALTER TABLE tickets ENABLE ROW LEVEL SECURITY;
+ALTER TABLE escrow_transactions ENABLE ROW LEVEL SECURITY;
+ALTER TABLE ticket_messages ENABLE ROW LEVEL SECURITY;
+
+-- Profiles Policies
+CREATE POLICY "Public profiles are viewable by everyone" ON profiles FOR SELECT USING (true);
+CREATE POLICY "Users can update own profile" ON profiles FOR UPDATE USING (auth.uid() = id);
+
+-- Tickets Policies
+CREATE POLICY "Users can see own tickets" ON tickets FOR SELECT USING (auth.uid() = user_id OR auth.uid() = officer_id);
+CREATE POLICY "Admins can see all tickets" ON tickets FOR SELECT USING (
+  EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'ADMIN')
+);
+CREATE POLICY "Users can insert own tickets" ON tickets FOR INSERT WITH CHECK (auth.uid() = user_id);
+CREATE POLICY "Users can update own tickets" ON tickets FOR UPDATE USING (auth.uid() = user_id OR auth.uid() = officer_id);
+
+-- Escrow Policies
+CREATE POLICY "Users can see own transactions" ON escrow_transactions FOR SELECT USING (
+  EXISTS (SELECT 1 FROM tickets WHERE id = ticket_id AND (user_id = auth.uid() OR officer_id = auth.uid()))
+);
+CREATE POLICY "Admins can see all transactions" ON escrow_transactions FOR SELECT USING (
+  EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'ADMIN')
+);

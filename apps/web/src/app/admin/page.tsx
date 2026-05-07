@@ -43,8 +43,19 @@ export default function AdminDashboard() {
       supabase.from('profiles').select('*').order('created_at', { ascending: false })
     ]);
 
-    if (!ticketsRes.error) setTickets(ticketsRes.data);
-    if (!usersRes.error) setUsers(usersRes.data);
+    if (ticketsRes.error) {
+      console.error('Error fetching tickets:', ticketsRes.error.message);
+      alert('Failed to load tickets: ' + ticketsRes.error.message);
+    } else {
+      setTickets(ticketsRes.data);
+    }
+
+    if (usersRes.error) {
+      console.error('Error fetching users:', usersRes.error.message);
+    } else {
+      setUsers(usersRes.data);
+    }
+
     setLoading(false);
   }
 
