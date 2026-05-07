@@ -26,11 +26,38 @@ export default function TicketForm({ onSuccess }: TicketFormProps) {
       return;
     }
 
+    const fileInput = (e.target as any).elements.image;
+    const file = fileInput.files[0];
+    let image_url = null;
+
+    if (file) {
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${Math.random()}.${fileExt}`;
+      const filePath = `${user.id}/${fileName}`;
+
+      const { data: uploadData, error: uploadError } = await supabase.storage
+        .from('ticket-images')
+        .upload(filePath, file);
+
+      if (uploadError) {
+        setError("Failed to upload image: " + uploadError.message);
+        setLoading(false);
+        return;
+      }
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('ticket-images')
+        .getPublicUrl(filePath);
+      
+      image_url = publicUrl;
+    }
+
     const ticketData = {
       title: formData.get('title'),
       description: formData.get('description'),
       category: formData.get('category'),
-      budget: 0, // Set to 0 as it's no longer used
+      budget: 0,
+      image_url: image_url,
       user_id: user.id,
       status: 'PENDING_PAYMENT'
     };
@@ -133,6 +160,28 @@ export default function TicketForm({ onSuccess }: TicketFormProps) {
         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
           <label style={{ color: 'var(--text-muted)', fontSize: '0.9rem' }}>Description</label>
           <textarea name="description" required rows={4} placeholder="Describe the issue in detail..." style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid var(--border)', padding: '0.75rem', borderRadius: '0.5rem', color: 'white', resize: 'none' }} />
+        </div>
+
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+          <label style={{ color: 'var(--text-muted)', fontSize: '0.9rem' }}>Attach Photo (Optional)</label>
+          <div style={{ 
+            border: '2px dashed var(--border)', 
+            padding: '1.5rem', 
+            borderRadius: '0.5rem', 
+            textAlign: 'center',
+            background: 'rgba(255,255,255,0.02)'
+          }}>
+            <input 
+              type="file" 
+              name="image" 
+              accept="image/*" 
+              capture="environment"
+              style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }} 
+            />
+            <p style={{ fontSize: '0.7rem', color: 'var(--text-muted)', marginTop: '0.5rem' }}>
+              Upload a screenshot or take a photo of the problem.
+            </p>
+          </div>
         </div>
 
         <button type="submit" disabled={loading} className="btn-primary" style={{ marginTop: '1rem' }}>

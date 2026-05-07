@@ -79,6 +79,12 @@ export default function UserPortal() {
                 <h3 style={{ fontSize: '1.25rem', marginBottom: '0.5rem' }}>{ticket.title}</h3>
                 <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', marginBottom: '1.5rem', height: '3rem', overflow: 'hidden' }}>{ticket.description}</p>
                 
+                {ticket.image_url && (
+                  <div style={{ marginBottom: '1.5rem', borderRadius: '0.5rem', overflow: 'hidden', border: '1px solid var(--border)' }}>
+                    <img src={ticket.image_url} alt="Issue" style={{ width: '100%', height: '150px', objectFit: 'cover' }} />
+                  </div>
+                )}
+                
                 {ticket.status === 'OPEN' && (
                   <div style={{ marginTop: '1rem' }}>
                     <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '1rem', borderBottom: '1px solid var(--border)', paddingBottom: '0.5rem' }}>

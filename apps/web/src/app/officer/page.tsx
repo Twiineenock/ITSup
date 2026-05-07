@@ -121,7 +121,13 @@ export default function OfficerDashboard() {
                     </div>
 
                     <h4 style={{ fontSize: '1.3rem', marginBottom: '0.75rem' }}>{ticket.title}</h4>
-                    <p style={{ color: 'var(--text-muted)', fontSize: '0.95rem', marginBottom: '2rem', lineHeight: 1.6, height: '4.8rem', overflow: 'hidden' }}>{ticket.description}</p>
+                    <p style={{ color: 'var(--text-muted)', fontSize: '0.95rem', marginBottom: '1.5rem', lineHeight: 1.6, height: '4.8rem', overflow: 'hidden' }}>{ticket.description}</p>
+                    
+                    {ticket.image_url && (
+                      <div style={{ marginBottom: '1.5rem', borderRadius: '0.5rem', overflow: 'hidden', border: '1px solid var(--border)' }}>
+                        <img src={ticket.image_url} alt="Issue evidence" style={{ width: '100%', height: '200px', objectFit: 'cover' }} />
+                      </div>
+                    )}
                     
                     {hasOffered ? (
                       <div style={{ background: 'rgba(99, 102, 241, 0.1)', padding: '1rem', borderRadius: '0.5rem', textAlign: 'center', color: 'var(--primary)', fontWeight: 700, border: '1px solid var(--primary)' }}>
