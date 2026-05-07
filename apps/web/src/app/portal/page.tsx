@@ -71,7 +71,10 @@ export default function UserPortal() {
             {tickets.map(ticket => (
               <div key={ticket.id} className="glass-card" style={{ border: ticket.status === 'PENDING_PAYMENT' ? '1px dashed var(--warning)' : '1px solid var(--border)' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '1rem' }}>
-                  <span className={`badge badge-${ticket.status.toLowerCase()}`}>{ticket.status.replace('_', ' ')}</span>
+                  <span className={`badge badge-${ticket.status.toLowerCase()}`}>
+                    {ticket.status === 'PENDING_PAYMENT' ? 'UNPUBLISHED DRAFT' : ticket.status.replace('_', ' ')}
+                  </span>
+                  {ticket.status === 'OPEN' && <span style={{ color: 'var(--success)', fontSize: '0.75rem', fontWeight: 700 }}>✅ PUBLISHED</span>}
                 </div>
                 <h3 style={{ fontSize: '1.25rem', marginBottom: '0.5rem' }}>{ticket.title}</h3>
                 <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', marginBottom: '1.5rem', height: '3rem', overflow: 'hidden' }}>{ticket.description}</p>
@@ -139,8 +142,9 @@ export default function UserPortal() {
                 )}
                 
                 {ticket.status === 'PENDING_PAYMENT' && (
-                  <div style={{ textAlign: 'center', padding: '1rem', background: 'rgba(245, 158, 11, 0.1)', borderRadius: '0.5rem' }}>
-                    <p style={{ color: 'var(--warning)', fontSize: '0.85rem', fontWeight: 600 }}>⚠️ Awaiting Listing Fee</p>
+                  <div style={{ textAlign: 'center', padding: '1.5rem', background: 'rgba(245, 158, 11, 0.05)', borderRadius: '0.5rem', border: '1px solid rgba(245, 158, 11, 0.2)' }}>
+                    <p style={{ color: 'var(--warning)', fontSize: '0.85rem', fontWeight: 600, marginBottom: '0.5rem' }}>Awaiting 5,000 UGX Listing Fee</p>
+                    <p style={{ color: 'var(--text-muted)', fontSize: '0.75rem' }}>This ticket is hidden from officers until published.</p>
                   </div>
                 )}
               </div>
