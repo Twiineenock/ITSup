@@ -96,8 +96,14 @@ export default function AdminDashboard() {
               <p style={{ fontSize: '0.8rem', marginTop: '1rem', color: 'var(--text-muted)' }}>Customers & IT Officers</p>
             </div>
             <div className="glass-card" style={{ textAlign: 'center', padding: '3rem' }}>
+              <p style={{ fontSize: '0.9rem', color: 'var(--text-muted)', marginBottom: '1rem' }}>TOTAL TICKETS</p>
+              <h2 style={{ fontSize: '3rem', fontWeight: 900 }}>{tickets.length}</h2>
+              <p style={{ fontSize: '0.8rem', marginTop: '1rem', color: 'var(--text-muted)' }}>All platform requests</p>
+            </div>
+            <div className="glass-card" style={{ textAlign: 'center', padding: '3rem' }}>
               <p style={{ fontSize: '0.9rem', color: 'var(--text-muted)', marginBottom: '1rem' }}>ACTIVE TICKETS</p>
-              <h2 style={{ fontSize: '3rem', color: 'var(--primary)', fontWeight: 900 }}>{tickets.filter(t => t.status === 'OPEN' || t.status === 'ASSIGNED').length}</h2>
+              <h2 style={{ fontSize: '3rem', color: 'var(--primary)', fontWeight: 900 }}>{tickets.filter(t => ['OPEN', 'FUNDED', 'ASSIGNED', 'IN_PROGRESS'].includes(t.status)).length}</h2>
+              <p style={{ fontSize: '0.8rem', marginTop: '1rem', color: 'var(--text-muted)' }}>Requiring attention</p>
             </div>
           </div>
         )}
@@ -107,21 +113,39 @@ export default function AdminDashboard() {
             <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
               <thead style={{ background: 'rgba(255,255,255,0.05)' }}>
                 <tr>
-                  <th style={{ padding: '1.5rem' }}>Title</th>
+                  <th style={{ padding: '1.5rem' }}>Ticket Info</th>
                   <th style={{ padding: '1.5rem' }}>Customer</th>
-                  <th style={{ padding: '1.5rem' }}>Officer</th>
+                  <th style={{ padding: '1.5rem' }}>Assigned Officer</th>
                   <th style={{ padding: '1.5rem' }}>Status</th>
-                  <th style={{ padding: '1.5rem' }}>Date</th>
+                  <th style={{ padding: '1.5rem' }}>Date Created</th>
                 </tr>
               </thead>
               <tbody>
                 {tickets.map(ticket => (
                   <tr key={ticket.id} style={{ borderBottom: '1px solid var(--border)' }}>
-                    <td style={{ padding: '1.5rem' }}>{ticket.title}</td>
-                    <td style={{ padding: '1.5rem' }}>{ticket.customer?.full_name}</td>
-                    <td style={{ padding: '1.5rem' }}>{ticket.officer?.full_name || '-'}</td>
-                    <td style={{ padding: '1.5rem' }}><span className={`badge badge-${ticket.status.toLowerCase()}`}>{ticket.status}</span></td>
-                    <td style={{ padding: '1.5rem', color: 'var(--text-muted)', fontSize: '0.8rem' }}>{new Date(ticket.created_at).toLocaleDateString()}</td>
+                    <td style={{ padding: '1.5rem' }}>
+                      <p style={{ fontWeight: 700 }}>{ticket.title}</p>
+                      <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>ID: {ticket.id.slice(0, 8)}...</p>
+                    </td>
+                    <td style={{ padding: '1.5rem' }}>
+                      <p style={{ fontWeight: 600 }}>{ticket.customer?.full_name}</p>
+                      <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{ticket.customer?.email}</p>
+                    </td>
+                    <td style={{ padding: '1.5rem' }}>
+                      {ticket.officer ? (
+                        <p style={{ fontWeight: 600 }}>{ticket.officer.full_name}</p>
+                      ) : (
+                        <span style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>Not Assigned</span>
+                      )}
+                    </td>
+                    <td style={{ padding: '1.5rem' }}>
+                      <span className={`badge badge-${ticket.status.toLowerCase().replace('_', '-')}`}>
+                        {ticket.status.replace('_', ' ')}
+                      </span>
+                    </td>
+                    <td style={{ padding: '1.5rem', color: 'var(--text-muted)', fontSize: '0.85rem' }}>
+                      {new Date(ticket.created_at).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
+                    </td>
                   </tr>
                 ))}
               </tbody>
