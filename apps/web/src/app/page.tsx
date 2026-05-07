@@ -50,50 +50,56 @@ export default function Home() {
     <main style={{ background: 'var(--bg)', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
       <Navbar />
 
-      {/* High-Visibility Testimonials - TOP SECTION */}
+      {/* Premium Horizontal Review Ticker - TOP SECTION */}
       <section style={{ 
-        padding: '2rem 0', 
-        background: 'rgba(99, 102, 241, 0.05)', 
-        borderBottom: '1px solid rgba(99, 102, 241, 0.1)',
+        padding: '0.75rem 0', 
+        background: '#ffffff', 
+        borderBottom: '1px solid #e2e8f0',
         position: 'relative',
-        overflow: 'hidden'
+        overflow: 'hidden',
+        zIndex: 10
       }}>
-        <div className="container">
+        <div style={{ display: 'flex', whiteSpace: 'nowrap', animation: reviews.length > 3 ? 'scroll 60s linear infinite' : 'none' }}>
           {reviews.length > 0 ? (
-            <div style={{ display: 'flex', gap: '2rem', overflowX: 'auto', padding: '1rem 0', scrollbarWidth: 'none' }}>
-              {reviews.map((review, i) => (
-                <div key={i} style={{ 
-                  flex: '0 0 400px', 
-                  background: 'var(--surface)', 
-                  padding: '2rem', 
-                  borderRadius: '1rem', 
-                  border: '1px solid rgba(99, 102, 241, 0.2)',
-                  boxShadow: '0 10px 30px rgba(0,0,0,0.2)'
-                }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1rem' }}>
-                    <img 
-                      src={review.profile?.avatar_url || `https://ui-avatars.com/api/?name=${review.profile?.full_name || 'User'}&background=6366f1&color=fff`} 
-                      alt="" 
-                      style={{ width: '40px', height: '40px', borderRadius: '50%' }}
-                    />
-                    <div>
-                      <p style={{ fontWeight: 700, fontSize: '0.9rem' }}>{review.profile?.full_name}</p>
-                      <div style={{ display: 'flex', gap: '2px', color: '#FBBF24', fontSize: '0.7rem' }}>
-                        {[...Array(review.rating)].map((_, i) => <span key={i}>★</span>)}
-                      </div>
-                    </div>
-                    <span style={{ marginLeft: 'auto', fontSize: '0.7rem', color: 'var(--primary)', fontWeight: 800, textTransform: 'uppercase' }}>{review.profile?.role}</span>
-                  </div>
-                  <p style={{ fontSize: '0.95rem', lineHeight: 1.6, color: 'var(--text-muted)', fontStyle: 'italic' }}>
-                    "{review.content}"
-                  </p>
+            // Duplicate the reviews to create a seamless loop
+            [...reviews, ...reviews, ...reviews].map((review, i) => (
+              <div key={i} style={{ 
+                display: 'inline-flex', 
+                alignItems: 'center', 
+                gap: '1rem', 
+                padding: '0 3rem',
+                borderRight: '1px solid #f1f5f9'
+              }}>
+                <div style={{ display: 'flex', gap: '2px', color: '#FBBF24', fontSize: '0.8rem' }}>
+                  {[...Array(review.rating)].map((_, i) => <span key={i}>★</span>)}
                 </div>
-              ))}
-            </div>
+                <p style={{ fontSize: '0.9rem', color: '#1e293b', fontWeight: 500 }}>
+                  "{review.content}"
+                </p>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                  <img 
+                    src={review.profile?.avatar_url || `https://ui-avatars.com/api/?name=${review.profile?.full_name || 'User'}&background=6366f1&color=fff`} 
+                    alt="" 
+                    style={{ width: '24px', height: '24px', borderRadius: '50%' }}
+                  />
+                  <span style={{ fontWeight: 700, fontSize: '0.8rem', color: '#64748b' }}>{review.profile?.full_name}</span>
+                  <span style={{ fontSize: '0.7rem', color: '#94a3b8', fontWeight: 600 }}>({review.profile?.role})</span>
+                </div>
+              </div>
+            ))
           ) : (
-            <p style={{ textAlign: 'center', color: 'var(--text-muted)', fontSize: '0.9rem' }}>✨ Join thousands of happy users on ITSup</p>
+            <div style={{ width: '100%', textAlign: 'center', color: '#64748b', fontSize: '0.9rem', fontWeight: 600 }}>
+              ✨ JOIN OVER 5,000+ USERS GETTING EXPERT IT SUPPORT ON ITSUP
+            </div>
           )}
         </div>
+
+        <style jsx>{`
+          @keyframes scroll {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-33.33%); }
+          }
+        `}</style>
       </section>
 
       {/* Hero Section */}
