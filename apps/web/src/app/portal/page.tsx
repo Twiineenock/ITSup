@@ -11,18 +11,52 @@ export default function UserPortal() {
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [toast, setToast] = useState<string | null>(null);
+  const [reviewingTicket, setReviewingTicket] = useState<any | null>(null);
+  const [rating, setRating] = useState(5);
+  const [comment, setComment] = useState('');
 
   async function fetchTickets() {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return setLoading(false);
 
+    // Fetch tickets with officer profiles and their highest rating from reviews
     const { data, error } = await supabase
       .from('tickets')
-      .select('*, officer:profiles!officer_id(full_name, phone_number, avatar_url), offers:ticket_offers(*, officer:profiles(full_name, phone_number, avatar_url))')
+      .select(`
+        *,
+        officer:profiles!officer_id(
+          id, full_name, phone_number, avatar_url,
+          reviews:reviews!officer_id(rating)
+        ),
+        offers:ticket_offers(
+          *,
+          officer:profiles(
+            id, full_name, phone_number, avatar_url,
+            reviews:reviews!officer_id(rating)
+          )
+        )
+      `)
       .eq('user_id', user.id)
       .order('created_at', { ascending: false });
     
-    if (!error) setTickets(data);
+    if (!error) {
+      // Post-process to find the MAX rating for each officer
+      const processed = data.map(ticket => {
+        const processOfficer = (off: any) => {
+          if (!off) return null;
+          const ratings = off.reviews?.map((r: any) => r.rating) || [];
+          const topRating = ratings.length > 0 ? Math.max(...ratings) : 0;
+          return { ...off, topRating };
+        };
+
+        return {
+          ...ticket,
+          officer: processOfficer(ticket.officer),
+          offers: ticket.offers?.map((o: any) => ({ ...o, officer: processOfficer(o.officer) }))
+        };
+      });
+      setTickets(processed);
+    }
     setLoading(false);
   }
 
@@ -41,14 +75,39 @@ export default function UserPortal() {
     }
   };
 
-  const verifyTicket = async (ticketId: string) => {
-    const { error } = await supabase
+  const submitReview = async () => {
+    if (!reviewingTicket) return;
+
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return;
+
+    // 1. Create the review
+    const { error: reviewError } = await supabase
+      .from('reviews')
+      .insert([{
+        ticket_id: reviewingTicket.id,
+        officer_id: reviewingTicket.officer_id,
+        customer_id: user.id,
+        rating: rating,
+        comment: comment
+      }]);
+
+    if (reviewError) {
+      showToast("Error saving review: " + reviewError.message);
+      return;
+    }
+
+    // 2. Mark ticket as completed
+    const { error: updateError } = await supabase
       .from('tickets')
       .update({ status: 'COMPLETED' })
-      .eq('id', ticketId);
+      .eq('id', reviewingTicket.id);
 
-    if (!error) {
-      showToast("Ticket verified and completed! Thank you.");
+    if (!updateError) {
+      showToast("Verification complete! Thank you for your feedback.");
+      setReviewingTicket(null);
+      setRating(5);
+      setComment('');
       fetchTickets();
     }
   };
@@ -69,6 +128,41 @@ export default function UserPortal() {
       {toast && (
         <div style={{ position: 'fixed', bottom: '2rem', right: '2rem', background: 'var(--primary)', color: 'white', padding: '1rem 2rem', borderRadius: '0.5rem', boxShadow: '0 10px 25px rgba(0,0,0,0.3)', zIndex: 2000 }} className="animate-slide-up">
           {toast}
+        </div>
+      )}
+
+      {reviewingTicket && (
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.9)', backdropFilter: 'blur(10px)', zIndex: 3000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem' }}>
+          <div className="glass-card" style={{ width: '100%', maxWidth: '500px', textAlign: 'center' }}>
+            <h2 style={{ fontSize: '1.8rem', marginBottom: '1rem' }}>Rate Officer's Work</h2>
+            <p style={{ color: 'var(--text-muted)', marginBottom: '2rem' }}>How would you rate the service provided by {reviewingTicket.officer?.full_name}?</p>
+            
+            <div style={{ display: 'flex', justifyContent: 'center', gap: '0.5rem', marginBottom: '2rem' }}>
+              {[1, 2, 3, 4, 5].map((star) => (
+                <button 
+                  key={star} 
+                  onClick={() => setRating(star)}
+                  style={{ background: 'none', border: 'none', fontSize: '2.5rem', cursor: 'pointer', color: star <= rating ? '#FBBF24' : 'rgba(255,255,255,0.1)', transition: 'transform 0.2s' }}
+                  onMouseEnter={(e) => (e.currentTarget.style.transform = 'scale(1.2)')}
+                  onMouseLeave={(e) => (e.currentTarget.style.transform = 'scale(1)')}
+                >
+                  ★
+                </button>
+              ))}
+            </div>
+
+            <textarea 
+              placeholder="Leave a comment about the work (optional)..." 
+              value={comment}
+              onChange={(e) => setComment(e.target.value)}
+              style={{ width: '100%', background: 'rgba(255,255,255,0.05)', border: '1px solid var(--border)', padding: '1rem', borderRadius: '0.5rem', color: 'white', minHeight: '100px', marginBottom: '2rem', resize: 'none' }}
+            />
+
+            <div style={{ display: 'flex', gap: '1rem' }}>
+              <button onClick={() => setReviewingTicket(null)} style={{ flex: 1, padding: '1rem', background: 'rgba(255,255,255,0.05)', border: 'none', color: 'white', borderRadius: '0.5rem', cursor: 'pointer' }}>Cancel</button>
+              <button onClick={submitReview} className="btn-primary" style={{ flex: 2, padding: '1rem' }}>Submit & Complete</button>
+            </div>
+          </div>
         </div>
       )}
       <div className="container" style={{ flex: 1, padding: '4rem 2rem' }}>
@@ -139,7 +233,15 @@ export default function UserPortal() {
                               style={{ width: '32px', height: '32px', borderRadius: '50%', objectFit: 'cover' }}
                             />
                             <div style={{ flex: 1 }}>
-                              <p style={{ fontSize: '0.9rem', fontWeight: 600 }}>{offer.officer?.full_name}</p>
+                              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                                <p style={{ fontSize: '0.9rem', fontWeight: 600 }}>{offer.officer?.full_name}</p>
+                                {offer.officer?.topRating >= 3 && (
+                                  <span style={{ fontSize: '0.65rem', background: 'var(--success)', color: 'white', padding: '0.1rem 0.4rem', borderRadius: '1rem', fontWeight: 800 }}>VERIFIED</span>
+                                )}
+                              </div>
+                              {offer.officer?.topRating > 0 && (
+                                <p style={{ fontSize: '0.75rem', color: '#FBBF24' }}>★ {offer.officer.topRating.toFixed(1)} Rating</p>
+                              )}
                               <div style={{ display: 'flex', gap: '0.5rem' }}>
                                 <a 
                                   href={`https://wa.me/${offer.officer?.phone_number}?text=Hi, I am interested in your offer for my ticket: ${ticket.title}`} 
@@ -194,7 +296,15 @@ export default function UserPortal() {
                       />
                       <div style={{ flex: 1 }}>
                         <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Hired Officer</p>
-                        <p style={{ fontWeight: 600, fontSize: '0.9rem' }}>{ticket.officer.full_name}</p>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                          <p style={{ fontWeight: 600, fontSize: '0.9rem' }}>{ticket.officer.full_name}</p>
+                          {ticket.officer.topRating >= 3 && (
+                            <span style={{ fontSize: '0.6rem', background: 'var(--success)', color: 'white', padding: '0.05rem 0.3rem', borderRadius: '1rem', fontWeight: 800 }}>VERIFIED</span>
+                          )}
+                        </div>
+                        {ticket.officer.topRating > 0 && (
+                          <p style={{ fontSize: '0.7rem', color: '#FBBF24' }}>★ {ticket.officer.topRating.toFixed(1)}</p>
+                        )}
                       </div>
                       <a href={`https://wa.me/${ticket.officer.phone_number}`} target="_blank" rel="noopener noreferrer" style={{ padding: '0.4rem 0.8rem', background: '#25D366', color: 'white', borderRadius: '0.4rem', textDecoration: 'none', fontSize: '0.75rem', fontWeight: 700 }}>WhatsApp</a>
                     </div>
@@ -209,7 +319,7 @@ export default function UserPortal() {
                           </div>
                         )}
                         <button 
-                          onClick={() => verifyTicket(ticket.id)}
+                          onClick={() => setReviewingTicket(ticket)}
                           className="btn-primary" 
                           style={{ width: '100%', padding: '0.6rem' }}
                         >

@@ -13,11 +13,22 @@ export default function OfficerDashboard() {
   const [loading, setLoading] = useState(true);
   const [toast, setToast] = useState<string | null>(null);
 
+  const [myRating, setMyRating] = useState<number>(0);
+
   async function fetchInitialData() {
     const { data: { user } } = await supabase.auth.getUser();
     setUser(user);
     
     if (user) {
+      const { data: ratingData } = await supabase
+        .from('reviews')
+        .select('rating')
+        .eq('officer_id', user.id);
+      
+      const ratings = ratingData?.map(r => r.rating) || [];
+      const top = ratings.length > 0 ? Math.max(...ratings) : 0;
+      setMyRating(top);
+
       await Promise.all([
         fetchTickets(user.id),
         fetchMyOffers(user.id),
@@ -39,7 +50,10 @@ export default function OfficerDashboard() {
   async function fetchTickets(uid: string) {
     const { data, error } = await supabase
       .from('tickets')
-      .select('*, customer:profiles!user_id(full_name, phone_number, avatar_url)')
+      .select(`
+        *,
+        customer:profiles!user_id(full_name, phone_number, avatar_url)
+      `)
       .eq('status', 'OPEN')
       .order('created_at', { ascending: false });
     
@@ -50,7 +64,10 @@ export default function OfficerDashboard() {
   async function fetchActiveTickets(uid: string) {
     const { data } = await supabase
       .from('tickets')
-      .select('*, customer:profiles!user_id(full_name, phone_number, avatar_url)')
+      .select(`
+        *,
+        customer:profiles!user_id(full_name, phone_number, avatar_url)
+      `)
       .eq('officer_id', uid)
       .in('status', ['ASSIGNED', 'RESOLVED', 'COMPLETED'])
       .order('updated_at', { ascending: false });
@@ -125,9 +142,20 @@ export default function OfficerDashboard() {
       )}
 
       <div className="container" style={{ flex: 1, padding: '4rem 2rem' }}>
-        <header style={{ marginBottom: '4rem' }}>
-          <h1 style={{ fontSize: '2.5rem', fontWeight: 800 }}>Officer Command Center</h1>
-          <p style={{ color: 'var(--text-muted)', fontSize: '1.1rem' }}>Manage your active work and browse new opportunities.</p>
+        <header style={{ marginBottom: '4rem', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
+          <div>
+            <h1 style={{ fontSize: '2.5rem', fontWeight: 800 }}>Officer Command Center</h1>
+            <p style={{ color: 'var(--text-muted)', fontSize: '1.1rem' }}>Manage your active work and browse new opportunities.</p>
+          </div>
+          <div style={{ textAlign: 'right' }}>
+            <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '0.5rem' }}>Your Reputation</p>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', justifyContent: 'flex-end' }}>
+              <span style={{ fontSize: '1.5rem', color: '#FBBF24', fontWeight: 800 }}>★ {myRating.toFixed(1)}</span>
+              {myRating >= 3 && (
+                <span style={{ background: 'var(--success)', color: 'white', padding: '0.2rem 0.6rem', borderRadius: '1rem', fontSize: '0.7rem', fontWeight: 800 }}>VERIFIED PRO</span>
+              )}
+            </div>
+          </div>
         </header>
 
         {loading ? (
