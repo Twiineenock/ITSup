@@ -182,14 +182,9 @@ export default function OfficerDashboard() {
 
       <div className="container" style={{ flex: 1, padding: '4rem 2rem' }}>
         <header style={{ marginBottom: '4rem', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem' }}>
-            <button onClick={() => setShowReviewModal(true)} style={{ background: 'transparent', border: '1px solid var(--border)', color: 'var(--text-muted)', padding: '0.6rem 1.25rem', borderRadius: '0.4rem', fontSize: '0.85rem', cursor: 'pointer', fontWeight: 600 }}>
-              {isReviewSubmitted ? '✓ Feedback Sent' : 'Platform Feedback'}
-            </button>
-            <div>
-              <h1 style={{ fontSize: '2.5rem', fontWeight: 800 }}>Officer Command Center</h1>
-              <p style={{ color: 'var(--text-muted)', fontSize: '1.1rem' }}>Manage your active work and browse new opportunities.</p>
-            </div>
+          <div>
+            <h1 style={{ fontSize: '2.5rem', fontWeight: 800 }}>Officer Command Center</h1>
+            <p style={{ color: 'var(--text-muted)', fontSize: '1.1rem' }}>Manage your active work and browse new opportunities.</p>
           </div>
           <div style={{ textAlign: 'right' }}>
             <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '0.5rem' }}>Your Reputation</p>
@@ -423,6 +418,13 @@ export default function OfficerDashboard() {
             </section>
           </div>
         )}
+
+        <div style={{ marginTop: '6rem', textAlign: 'center', borderTop: '1px solid var(--border)', paddingTop: '4rem' }}>
+          <p style={{ color: 'var(--text-muted)', marginBottom: '1.5rem' }}>Are you enjoying the ITSup officer experience?</p>
+          <button onClick={() => setShowReviewModal(true)} style={{ background: 'transparent', border: '1px solid #22c55e', color: '#22c55e', padding: '0.75rem 2rem', borderRadius: '0.5rem', fontSize: '1rem', cursor: 'pointer', fontWeight: 600 }}>
+            {isReviewSubmitted ? '✓ Thank you for your feedback!' : 'Submit Platform Testimonial'}
+          </button>
+        </div>
       </div>
       <Footer />
     </main>

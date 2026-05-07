@@ -260,9 +260,6 @@ export default function UserPortal() {
             <p style={{ color: 'var(--text-muted)', fontSize: '1.1rem' }}>Manage your technical requests and connect with expert officers.</p>
           </div>
           <div>
-            <button onClick={() => setShowReviewModal(true)} style={{ marginRight: '1rem', background: 'transparent', border: '1px solid var(--border)', color: 'var(--text-muted)', padding: '0.75rem 1.5rem', borderRadius: '0.5rem', fontSize: '0.9rem', cursor: 'pointer', fontWeight: 600 }}>
-              {isReviewSubmitted ? '✓ Feedback Sent' : 'Share Feedback'}
-            </button>
             <button 
               onClick={() => setShowForm(true)} 
               className="btn-primary" 
@@ -336,41 +333,7 @@ export default function UserPortal() {
           </div>
         )}
 
-        {!isReviewSubmitted && (
-          <section className="glass-card" style={{ padding: '3rem', marginBottom: '4rem', background: 'rgba(99, 102, 241, 0.03)', border: '1px solid rgba(99, 102, 241, 0.1)' }}>
-            <h2 style={{ fontSize: '1.5rem', fontWeight: 800, marginBottom: '1rem' }}>Share Your Experience</h2>
-            <p style={{ color: 'var(--text-muted)', marginBottom: '2rem' }}>How are you enjoying the ITSup platform? Your feedback helps us grow.</p>
-            
-            <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1.5rem' }}>
-              {[1, 2, 3, 4, 5].map((star) => (
-                <button 
-                  key={star} 
-                  onClick={() => setSystemRating(star)}
-                  style={{ background: 'none', border: 'none', fontSize: '1.5rem', cursor: 'pointer', color: star <= systemRating ? '#FBBF24' : 'rgba(255,255,255,0.1)' }}
-                >
-                  ★
-                </button>
-              ))}
-            </div>
 
-            <div style={{ display: 'flex', gap: '1rem' }}>
-              <textarea 
-                placeholder="Write a brief testimonial about ITSup..." 
-                value={systemReview}
-                onChange={(e) => setSystemReview(e.target.value)}
-                style={{ flex: 1, background: 'rgba(255,255,255,0.05)', border: '1px solid var(--border)', padding: '1rem', borderRadius: '0.5rem', color: 'white', minHeight: '80px', resize: 'none' }}
-              />
-              <button 
-                onClick={submitSystemReview}
-                className="btn-primary" 
-                style={{ padding: '0 2rem' }}
-                disabled={!systemReview.trim()}
-              >
-                Submit Review
-              </button>
-            </div>
-          </section>
-        )}
 
         {loading ? (
           <p>Loading your tickets...</p>
@@ -557,6 +520,13 @@ export default function UserPortal() {
             ))}
           </div>
         )}
+
+        <div style={{ marginTop: '6rem', textAlign: 'center', borderTop: '1px solid var(--border)', paddingTop: '4rem' }}>
+          <p style={{ color: 'var(--text-muted)', marginBottom: '1.5rem' }}>Are you enjoying the ITSup experience?</p>
+          <button onClick={() => setShowReviewModal(true)} style={{ background: 'transparent', border: '1px solid var(--primary)', color: 'var(--primary)', padding: '0.75rem 2rem', borderRadius: '0.5rem', fontSize: '1rem', cursor: 'pointer', fontWeight: 600 }}>
+            {isReviewSubmitted ? '✓ Thank you for your feedback!' : 'Share Your Experience'}
+          </button>
+        </div>
       </div>
       <Footer />
     </main>
