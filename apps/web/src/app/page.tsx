@@ -10,9 +10,10 @@ export default function Home() {
   const [user, setUser] = useState<any>(null);
   const [profile, setProfile] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [reviews, setReviews] = useState<any[]>([]);
 
   useEffect(() => {
-    async function getAuth() {
+    async function fetchData() {
       const { data: { user } } = await supabase.auth.getUser();
       setUser(user);
       
@@ -24,9 +25,18 @@ export default function Home() {
           .single();
         setProfile(data);
       }
+
+      // Fetch system reviews with profile info
+      const { data: reviewsData } = await supabase
+        .from('system_reviews')
+        .select('*, profile:profiles(full_name, avatar_url, role)')
+        .order('created_at', { ascending: false })
+        .limit(6);
+      
+      if (reviewsData) setReviews(reviewsData);
       setLoading(false);
     }
-    getAuth();
+    fetchData();
   }, []);
 
   const getDashboardLink = () => {
@@ -166,6 +176,46 @@ export default function Home() {
               </div>
             ))}
           </div>
+        </div>
+      </section>
+
+      {/* Testimonials Section */}
+      <section style={{ padding: '10rem 0', background: 'var(--surface)' }}>
+        <div className="container">
+          <div style={{ textAlign: 'center', marginBottom: '6rem' }}>
+            <h3 style={{ fontSize: '3.5rem', fontWeight: 800, marginBottom: '2rem' }}>User Testimonials</h3>
+            <p style={{ color: 'var(--text-muted)', fontSize: '1.25rem' }}>See what our community thinks about the ITSup ecosystem.</p>
+          </div>
+
+          {reviews.length > 0 ? (
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(350px, 1fr))', gap: '2.5rem' }}>
+              {reviews.map((review, i) => (
+                <div key={i} className="glass-card" style={{ padding: '3rem', position: 'relative' }}>
+                  <div style={{ display: 'flex', gap: '0.2rem', color: '#FBBF24', marginBottom: '1.5rem', fontSize: '1.2rem' }}>
+                    {[...Array(review.rating)].map((_, i) => <span key={i}>★</span>)}
+                  </div>
+                  <p style={{ fontSize: '1.1rem', lineHeight: 1.8, marginBottom: '2.5rem', fontStyle: 'italic', color: 'var(--text-muted)' }}>
+                    "{review.content}"
+                  </p>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                    <img 
+                      src={review.profile?.avatar_url || `https://ui-avatars.com/api/?name=${review.profile?.full_name || 'User'}&background=6366f1&color=fff`} 
+                      alt="" 
+                      style={{ width: '50px', height: '50px', borderRadius: '50%', objectFit: 'cover' }}
+                    />
+                    <div>
+                      <p style={{ fontWeight: 700, fontSize: '1.1rem' }}>{review.profile?.full_name}</p>
+                      <p style={{ fontSize: '0.85rem', color: 'var(--primary)', fontWeight: 600, letterSpacing: '1px' }}>{review.profile?.role}</p>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div style={{ textAlign: 'center', padding: '4rem', background: 'rgba(255,255,255,0.02)', borderRadius: '1rem', border: '1px dashed var(--border)' }}>
+              <p style={{ color: 'var(--text-muted)' }}>No testimonials shared yet. Be the first to share your experience!</p>
+            </div>
+          )}
         </div>
       </section>
 

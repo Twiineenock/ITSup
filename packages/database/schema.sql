@@ -46,17 +46,28 @@ CREATE TABLE ticket_messages (
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
+-- 6. System Reviews Table
+CREATE TABLE system_reviews (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID REFERENCES profiles(id) NOT NULL,
+  content TEXT NOT NULL,
+  rating INTEGER DEFAULT 5 CHECK (rating >= 1 AND rating <= 5),
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
 -- Enable Realtime
 ALTER PUBLICATION supabase_realtime ADD TABLE tickets;
 ALTER PUBLICATION supabase_realtime ADD TABLE ticket_messages;
 ALTER PUBLICATION supabase_realtime ADD TABLE escrow_transactions;
+ALTER PUBLICATION supabase_realtime ADD TABLE system_reviews;
 
--- 5. RLS Policies (Row Level Security)
+-- 7. RLS Policies (Row Level Security)
 -- Enable RLS on all tables
 ALTER TABLE profiles ENABLE ROW LEVEL SECURITY;
 ALTER TABLE tickets ENABLE ROW LEVEL SECURITY;
 ALTER TABLE escrow_transactions ENABLE ROW LEVEL SECURITY;
 ALTER TABLE ticket_messages ENABLE ROW LEVEL SECURITY;
+ALTER TABLE system_reviews ENABLE ROW LEVEL SECURITY;
 
 -- Profiles Policies
 CREATE POLICY "Public profiles are viewable by everyone" ON profiles FOR SELECT USING (true);
@@ -77,3 +88,7 @@ CREATE POLICY "Users can see own transactions" ON escrow_transactions FOR SELECT
 CREATE POLICY "Admins can see all transactions" ON escrow_transactions FOR SELECT USING (
   EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'ADMIN')
 );
+
+-- System Reviews Policies
+CREATE POLICY "Anyone can view system reviews" ON system_reviews FOR SELECT USING (true);
+CREATE POLICY "Authenticated users can insert system reviews" ON system_reviews FOR INSERT WITH CHECK (auth.uid() = user_id);

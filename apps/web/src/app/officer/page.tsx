@@ -14,6 +14,9 @@ export default function OfficerDashboard() {
   const [toast, setToast] = useState<string | null>(null);
 
   const [myRating, setMyRating] = useState<number>(0);
+  const [systemReview, setSystemReview] = useState('');
+  const [systemRating, setSystemRating] = useState(5);
+  const [isReviewSubmitted, setIsReviewSubmitted] = useState(false);
 
   async function fetchInitialData() {
     const { data: { user } } = await supabase.auth.getUser();
@@ -169,6 +172,42 @@ export default function OfficerDashboard() {
             </div>
           </div>
         </header>
+        
+        {!isReviewSubmitted && (
+          <section className="glass-card" style={{ padding: '3rem', marginBottom: '4rem', background: 'rgba(34, 197, 94, 0.03)', border: '1px solid rgba(34, 197, 94, 0.1)' }}>
+            <h2 style={{ fontSize: '1.5rem', fontWeight: 800, marginBottom: '1rem' }}>How's Your Officer Experience?</h2>
+            <p style={{ color: 'var(--text-muted)', marginBottom: '2rem' }}>Share your feedback about the ITSup platform. Your review will appear on our homepage!</p>
+            
+            <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1.5rem' }}>
+              {[1, 2, 3, 4, 5].map((star) => (
+                <button 
+                  key={star} 
+                  onClick={() => setSystemRating(star)}
+                  style={{ background: 'none', border: 'none', fontSize: '1.5rem', cursor: 'pointer', color: star <= systemRating ? '#FBBF24' : 'rgba(255,255,255,0.1)' }}
+                >
+                  ★
+                </button>
+              ))}
+            </div>
+
+            <div style={{ display: 'flex', gap: '1rem' }}>
+              <textarea 
+                placeholder="Write a testimonial about being an officer on ITSup..." 
+                value={systemReview}
+                onChange={(e) => setSystemReview(e.target.value)}
+                style={{ flex: 1, background: 'rgba(255,255,255,0.05)', border: '1px solid var(--border)', padding: '1rem', borderRadius: '0.5rem', color: 'white', minHeight: '80px', resize: 'none' }}
+              />
+              <button 
+                onClick={submitSystemReview}
+                className="btn-primary" 
+                style={{ padding: '0 2rem', background: '#22c55e', border: 'none' }}
+                disabled={!systemReview.trim()}
+              >
+                Submit Testimonial
+              </button>
+            </div>
+          </section>
+        )}
 
         {loading ? (
           <p>Connecting to marketplace...</p>

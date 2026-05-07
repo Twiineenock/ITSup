@@ -17,6 +17,9 @@ export default function UserPortal() {
   const [comment, setComment] = useState('');
   const [remoteId, setRemoteId] = useState('');
   const [remotePass, setRemotePass] = useState('');
+  const [systemReview, setSystemReview] = useState('');
+  const [systemRating, setSystemRating] = useState(5);
+  const [isReviewSubmitted, setIsReviewSubmitted] = useState(false);
 
   async function fetchTickets() {
     const { data: { user } } = await supabase.auth.getUser();
@@ -132,6 +135,28 @@ export default function UserPortal() {
       setRating(5);
       setComment('');
       fetchTickets();
+    }
+  };
+
+  const submitSystemReview = async () => {
+    if (!systemReview.trim()) return;
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return;
+
+    const { error } = await supabase
+      .from('system_reviews')
+      .insert([{
+        user_id: user.id,
+        content: systemReview,
+        rating: systemRating
+      }]);
+
+    if (!error) {
+      showToast("Thank you for your review! It is now live on our home page.");
+      setIsReviewSubmitted(true);
+      setSystemReview('');
+    } else {
+      showToast("Error submitting review: " + error.message);
     }
   };
 
@@ -259,6 +284,42 @@ export default function UserPortal() {
               />
             </div>
           </div>
+        )}
+
+        {!isReviewSubmitted && (
+          <section className="glass-card" style={{ padding: '3rem', marginBottom: '4rem', background: 'rgba(99, 102, 241, 0.03)', border: '1px solid rgba(99, 102, 241, 0.1)' }}>
+            <h2 style={{ fontSize: '1.5rem', fontWeight: 800, marginBottom: '1rem' }}>Share Your Experience</h2>
+            <p style={{ color: 'var(--text-muted)', marginBottom: '2rem' }}>How are you enjoying the ITSup platform? Your feedback helps us grow.</p>
+            
+            <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1.5rem' }}>
+              {[1, 2, 3, 4, 5].map((star) => (
+                <button 
+                  key={star} 
+                  onClick={() => setSystemRating(star)}
+                  style={{ background: 'none', border: 'none', fontSize: '1.5rem', cursor: 'pointer', color: star <= systemRating ? '#FBBF24' : 'rgba(255,255,255,0.1)' }}
+                >
+                  ★
+                </button>
+              ))}
+            </div>
+
+            <div style={{ display: 'flex', gap: '1rem' }}>
+              <textarea 
+                placeholder="Write a brief testimonial about ITSup..." 
+                value={systemReview}
+                onChange={(e) => setSystemReview(e.target.value)}
+                style={{ flex: 1, background: 'rgba(255,255,255,0.05)', border: '1px solid var(--border)', padding: '1rem', borderRadius: '0.5rem', color: 'white', minHeight: '80px', resize: 'none' }}
+              />
+              <button 
+                onClick={submitSystemReview}
+                className="btn-primary" 
+                style={{ padding: '0 2rem' }}
+                disabled={!systemReview.trim()}
+              >
+                Submit Review
+              </button>
+            </div>
+          </section>
         )}
 
         {loading ? (
