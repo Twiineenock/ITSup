@@ -131,6 +131,18 @@ export default function OfficerDashboard() {
     }
   }
 
+  async function requestRemoteAccess(ticketId: string) {
+    const { error } = await supabase
+      .from('tickets')
+      .update({ remote_access_requested: true })
+      .eq('id', ticketId);
+    
+    if (!error) {
+      showToast("Remote access request sent to the customer.");
+      fetchInitialData();
+    }
+  }
+
   return (
     <main style={{ minHeight: '100vh', background: 'var(--bg)', color: 'var(--text)', display: 'flex', flexDirection: 'column' }}>
       <Navbar />
@@ -189,15 +201,52 @@ export default function OfficerDashboard() {
                     <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', marginBottom: '1.5rem' }}>{ticket.description}</p>
 
                     {ticket.status === 'ASSIGNED' && (
-                      <form onSubmit={(e) => resolveTicket(e, ticket.id)} style={{ borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: '1.5rem' }}>
-                        <label style={{ display: 'block', fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '0.5rem' }}>Resolution Note</label>
-                        <textarea name="message" required placeholder="Describe what you fixed..." style={{ width: '100%', background: 'rgba(0,0,0,0.2)', border: '1px solid var(--border)', padding: '0.75rem', borderRadius: '0.4rem', color: 'white', fontSize: '0.9rem', marginBottom: '1rem', resize: 'none' }} />
+                      <div style={{ borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: '1.5rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                         
-                        <label style={{ display: 'block', fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '0.5rem' }}>Proof of Work (Optional Image)</label>
-                        <input type="file" name="image" accept="image/*" capture="environment" style={{ fontSize: '0.8rem', marginBottom: '1rem', color: 'var(--text-muted)' }} />
-                        
-                        <button type="submit" className="btn-primary" style={{ width: '100%', padding: '0.75rem' }}>Mark as Resolved</button>
-                      </form>
+                        {/* Remote Access Section */}
+                        <div style={{ background: 'rgba(255,255,255,0.02)', padding: '1rem', borderRadius: '0.5rem', border: '1px solid var(--border)' }}>
+                          <p style={{ fontSize: '0.8rem', fontWeight: 700, marginBottom: '0.75rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                            🖥️ Remote Support
+                          </p>
+                          
+                          {!ticket.remote_access_requested && (
+                            <button 
+                              onClick={() => requestRemoteAccess(ticket.id)}
+                              style={{ width: '100%', padding: '0.5rem', background: 'none', border: '1px solid var(--primary)', color: 'var(--primary)', borderRadius: '0.4rem', fontSize: '0.8rem', cursor: 'pointer', fontWeight: 600 }}
+                            >
+                              Request AnyDesk Access
+                            </button>
+                          )}
+
+                          {ticket.remote_access_requested && !ticket.remote_access_id && (
+                            <p style={{ fontSize: '0.75rem', color: 'var(--warning)', textAlign: 'center' }}>Waiting for customer to provide ID...</p>
+                          )}
+
+                          {ticket.remote_access_id && (
+                            <div style={{ background: 'rgba(99, 102, 241, 0.1)', padding: '0.75rem', borderRadius: '0.4rem', border: '1px solid var(--primary)' }}>
+                              <p style={{ fontSize: '0.7rem', color: 'var(--text-muted)', marginBottom: '0.4rem' }}>AnyDesk Credentials:</p>
+                              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.4rem' }}>
+                                <span style={{ fontWeight: 800, fontSize: '1rem', letterSpacing: '1px' }}>{ticket.remote_access_id}</span>
+                                <span style={{ fontSize: '0.6rem', background: 'var(--primary)', padding: '0.1rem 0.3rem', borderRadius: '0.2rem' }}>ID</span>
+                              </div>
+                              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                <span style={{ fontWeight: 700, fontSize: '0.9rem', color: 'var(--success)' }}>{ticket.remote_access_password || 'No Password'}</span>
+                                <span style={{ fontSize: '0.6rem', color: 'var(--text-muted)' }}>PASS</span>
+                              </div>
+                            </div>
+                          )}
+                        </div>
+
+                        <form onSubmit={(e) => resolveTicket(e, ticket.id)}>
+                          <label style={{ display: 'block', fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '0.5rem' }}>Resolution Note</label>
+                          <textarea name="message" required placeholder="Describe what you fixed..." style={{ width: '100%', background: 'rgba(0,0,0,0.2)', border: '1px solid var(--border)', padding: '0.75rem', borderRadius: '0.4rem', color: 'white', fontSize: '0.9rem', marginBottom: '1rem', resize: 'none' }} />
+                          
+                          <label style={{ display: 'block', fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '0.5rem' }}>Proof of Work (Optional Image)</label>
+                          <input type="file" name="image" accept="image/*" capture="environment" style={{ fontSize: '0.8rem', marginBottom: '1rem', color: 'var(--text-muted)' }} />
+                          
+                          <button type="submit" className="btn-primary" style={{ width: '100%', padding: '0.75rem' }}>Mark as Resolved</button>
+                        </form>
+                      </div>
                     )}
 
                     {ticket.status === 'RESOLVED' && (

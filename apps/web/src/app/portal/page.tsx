@@ -12,8 +12,11 @@ export default function UserPortal() {
   const [showForm, setShowForm] = useState(false);
   const [toast, setToast] = useState<string | null>(null);
   const [reviewingTicket, setReviewingTicket] = useState<any | null>(null);
+  const [remoteTicket, setRemoteTicket] = useState<any | null>(null);
   const [rating, setRating] = useState(5);
   const [comment, setComment] = useState('');
+  const [remoteId, setRemoteId] = useState('');
+  const [remotePass, setRemotePass] = useState('');
 
   async function fetchTickets() {
     const { data: { user } } = await supabase.auth.getUser();
@@ -59,6 +62,26 @@ export default function UserPortal() {
     }
     setLoading(false);
   }
+
+  const submitRemoteCredentials = async () => {
+    if (!remoteTicket) return;
+
+    const { error } = await supabase
+      .from('tickets')
+      .update({ 
+        remote_access_id: remoteId,
+        remote_access_password: remotePass
+      })
+      .eq('id', remoteTicket.id);
+
+    if (!error) {
+      showToast("AnyDesk details sent to your IT Officer!");
+      setRemoteTicket(null);
+      setRemoteId('');
+      setRemotePass('');
+      fetchTickets();
+    }
+  };
 
   const hireOfficer = async (ticketId: string, officerId: string) => {
     const { error } = await supabase
@@ -165,6 +188,44 @@ export default function UserPortal() {
           </div>
         </div>
       )}
+
+      {remoteTicket && (
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.9)', backdropFilter: 'blur(10px)', zIndex: 3000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem' }}>
+          <div className="glass-card" style={{ width: '100%', maxWidth: '450px', textAlign: 'center' }}>
+            <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>🖥️</div>
+            <h2 style={{ fontSize: '1.5rem', marginBottom: '1rem' }}>Remote Access Request</h2>
+            <p style={{ color: 'var(--text-muted)', marginBottom: '2rem', fontSize: '0.9rem' }}>
+              Your technician {remoteTicket.officer?.full_name} has requested remote access via <strong>AnyDesk</strong> to troubleshoot your issue.
+            </p>
+            
+            <div style={{ textAlign: 'left', marginBottom: '2rem' }}>
+              <label style={{ display: 'block', fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '0.5rem' }}>AnyDesk ID</label>
+              <input 
+                type="text" 
+                placeholder="e.g. 123 456 789" 
+                value={remoteId}
+                onChange={(e) => setRemoteId(e.target.value)}
+                style={{ width: '100%', background: 'rgba(255,255,255,0.05)', border: '1px solid var(--border)', padding: '0.75rem', borderRadius: '0.5rem', color: 'white', marginBottom: '1rem' }}
+              />
+              
+              <label style={{ display: 'block', fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '0.5rem' }}>Temporary Password (Optional)</label>
+              <input 
+                type="text" 
+                placeholder="Password shown in AnyDesk" 
+                value={remotePass}
+                onChange={(e) => setRemotePass(e.target.value)}
+                style={{ width: '100%', background: 'rgba(255,255,255,0.05)', border: '1px solid var(--border)', padding: '0.75rem', borderRadius: '0.5rem', color: 'white' }}
+              />
+              <p style={{ fontSize: '0.7rem', color: 'var(--warning)', marginTop: '0.5rem' }}>⚠️ Never share your main computer password. Only share the AnyDesk code.</p>
+            </div>
+
+            <div style={{ display: 'flex', gap: '1rem' }}>
+              <button onClick={() => setRemoteTicket(null)} style={{ flex: 1, padding: '1rem', background: 'rgba(255,255,255,0.05)', border: 'none', color: 'white', borderRadius: '0.5rem', cursor: 'pointer' }}>Close</button>
+              <button onClick={submitRemoteCredentials} className="btn-primary" style={{ flex: 2, padding: '1rem' }}>Share Access</button>
+            </div>
+          </div>
+        </div>
+      )}
       <div className="container" style={{ flex: 1, padding: '4rem 2rem' }}>
         <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '3rem' }}>
           <div>
@@ -204,9 +265,19 @@ export default function UserPortal() {
             {tickets.map(ticket => (
               <div key={ticket.id} className="glass-card" style={{ border: ticket.status === 'PENDING_PAYMENT' ? '1px dashed var(--warning)' : '1px solid var(--border)' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '1rem' }}>
-                  <span className={`badge badge-${ticket.status.toLowerCase()}`}>
-                    {ticket.status === 'PENDING_PAYMENT' ? 'UNPUBLISHED DRAFT' : ticket.status.replace('_', ' ')}
-                  </span>
+                  <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                    <span className={`badge badge-${ticket.status.toLowerCase()}`}>
+                      {ticket.status === 'PENDING_PAYMENT' ? 'UNPUBLISHED DRAFT' : ticket.status.replace('_', ' ')}
+                    </span>
+                    {ticket.remote_access_requested && !ticket.remote_access_id && (
+                      <button 
+                        onClick={() => setRemoteTicket(ticket)}
+                        style={{ background: 'var(--warning)', color: 'black', border: 'none', padding: '0.2rem 0.5rem', borderRadius: '0.3rem', fontSize: '0.65rem', fontWeight: 900, cursor: 'pointer', animation: 'pulse 2s infinite' }}
+                      >
+                        🖥️ ACTION REQUIRED
+                      </button>
+                    )}
+                  </div>
                   {ticket.status === 'OPEN' && <span style={{ color: 'var(--success)', fontSize: '0.75rem', fontWeight: 700 }}>✅ PUBLISHED</span>}
                 </div>
                 <h3 style={{ fontSize: '1.25rem', marginBottom: '0.5rem' }}>{ticket.title}</h3>
