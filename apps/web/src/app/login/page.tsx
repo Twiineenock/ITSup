@@ -164,9 +164,6 @@ export default function LoginPage() {
             Don't have an account? <Link href="/signup" style={{ color: 'var(--primary)', fontWeight: 600 }}>Create an account</Link>
           </div>
           
-          <div style={{ marginTop: '1.5rem', padding: '1rem', borderTop: '1px solid var(--border)', fontSize: '0.8rem', color: 'var(--text-muted)', textAlign: 'center' }}>
-            <p>Admin Login: admin@itsup.com / ITSupAdmin2024</p>
-          </div>
         </div>
       </main>
 
