@@ -49,7 +49,7 @@ export default function Navbar() {
       zIndex: 100 
     }}>
       <div className="container" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <Link href="/" style={{ fontSize: '1.75rem', fontWeight: 900, letterSpacing: '-1.5px', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+        <Link href={getHomeLink()} style={{ fontSize: '1.75rem', fontWeight: 900, letterSpacing: '-1.5px', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
           <div style={{ width: '32px', height: '32px', background: 'linear-gradient(135deg, var(--primary), var(--accent))', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontSize: '1.2rem' }}>S</div>
           <span>IT<span style={{ color: 'var(--primary)' }}>Sup</span></span>
         </Link>
@@ -59,7 +59,12 @@ export default function Navbar() {
           <Link href="/#how-it-works" style={{ color: 'var(--text-muted)', fontSize: '0.9rem', fontWeight: 500 }}>How it Works</Link>
           
           {user ? (
-            <UserWidget user={user} profile={profile} />
+            <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem' }}>
+              {profile?.role === 'ADMIN' && (
+                <Link href="/admin" style={{ color: 'var(--warning)', fontSize: '0.8rem', fontWeight: 800, border: '1px solid var(--warning)', padding: '0.3rem 0.7rem', borderRadius: '4px', textTransform: 'uppercase' }}>Admin Panel</Link>
+              )}
+              <UserWidget user={user} profile={profile} />
+            </div>
           ) : (
             <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
               <Link href="/login" style={{ color: 'var(--text)', fontSize: '0.9rem', fontWeight: 500 }}>Sign In</Link>
