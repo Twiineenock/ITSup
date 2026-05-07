@@ -144,7 +144,27 @@ export default function OfficerDashboard() {
       showToast("Remote access request sent to the customer.");
       fetchInitialData();
     }
-  }
+  const submitSystemReview = async () => {
+    if (!systemReview.trim()) return;
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return;
+
+    const { error } = await supabase
+      .from('system_reviews')
+      .insert([{
+        user_id: user.id,
+        content: systemReview,
+        rating: systemRating
+      }]);
+
+    if (!error) {
+      showToast("Thank you for your review! It is now live on our home page.");
+      setIsReviewSubmitted(true);
+      setSystemReview('');
+    } else {
+      showToast("Error submitting review: " + error.message);
+    }
+  };
 
   return (
     <main style={{ minHeight: '100vh', background: 'var(--bg)', color: 'var(--text)', display: 'flex', flexDirection: 'column' }}>
